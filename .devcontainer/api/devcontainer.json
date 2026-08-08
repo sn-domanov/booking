@@ -1,0 +1,45 @@
+{
+  "name": "API",
+  "dockerComposeFile": [
+    "../../docker/compose/dev.yml"
+  ],
+  "service": "api",
+  "shutdownAction": "none",
+  "workspaceFolder": "/app",
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        // Specific
+        "ms-python.python",
+        "ms-python.debugpy",
+        "ms-python.vscode-pylance",
+        "charliermarsh.ruff",
+        "humao.rest-client",
+        // Common
+        "streetsidesoftware.code-spell-checker",
+        "mhutchie.git-graph",
+        "oderwat.indent-rainbow",
+        "wayou.vscode-todo-highlight"
+      ],
+      "settings": {
+        "python.testing.pytestEnabled": true,
+        "python.testing.unittestEnabled": false,
+        "[python]": {
+          "editor.defaultFormatter": "charliermarsh.ruff",
+          "editor.formatOnSave": true,
+          "editor.codeActionsOnSave": {
+            "source.fixAll": "explicit",
+            "source.organizeImports": "explicit"
+          }
+        },
+        "[json]": {
+          "editor.tabSize": 2,
+          "editor.defaultFormatter": "vscode.json-language-features"
+        }
+      }
+    }
+  }
+}
