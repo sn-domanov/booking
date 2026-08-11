@@ -1,11 +1,12 @@
 {
   "name": "WEB",
   "dockerComposeFile": [
-    "../../docker/compose/dev.yml"
+    "../../docker/compose.yml",
+    "../../docker/compose.dev.yml"
   ],
   "service": "web",
   "shutdownAction": "none",
-  "workspaceFolder": "/app",
+  "workspaceFolder": "/app/web",
   "features": {
     "ghcr.io/devcontainers/features/git:1": {}
   },
