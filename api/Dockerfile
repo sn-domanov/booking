@@ -32,7 +32,7 @@ RUN uv sync --locked --no-dev --no-editable
 
 FROM builder AS dev
 
-RUN uv sync --locked --group dev
+RUN uv sync --locked
 
 RUN useradd --create-home --uid 1000 appuser
 RUN chown -R appuser:appuser /app /opt/venv
@@ -66,4 +66,4 @@ ENV PYTHONUNBUFFERED=1
 
 EXPOSE 8000
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080", "--proxy-headers", "--forwarded-allow-ips", "*"]
+CMD ["uvicorn", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers", "--forwarded-allow-ips", "*"]

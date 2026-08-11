@@ -1,0 +1,45 @@
+services:
+  api:
+    build:
+      target: dev
+    environment:
+      APP_ENV: development
+      DB_ECHO: true
+    command: 
+      - fastapi 
+      - dev 
+      - --host 
+      - 0.0.0.0 
+      - --port 
+      - "8000"
+    volumes:
+      # `:Z` - private SELinux label, `:z` - global
+      - ../:/app:z
+    working_dir: /app/api
+    # Rootless container + Podman - have to map UID/GID to make bind-mounted files writable
+    user: "1000:1000"
+    userns_mode: keep-id
+    ports:
+      - "127.0.0.1:8000:8000"
+
+  db:
+    ports:
+      - "127.0.0.1:5432:5432"
+
+  web:
+    environment:
+      # TODO pass as build arguments when building JS bundle
+      VITE_API_URL: ${VITE_API_URL}
+    command:
+      - npm
+      - run 
+      - dev 
+      - -- 
+      - --host 
+      - 0.0.0.0
+    volumes:
+      - ../:/app:z
+    working_dir: /app/web
+    ports:
+      - "127.0.0.1:5173:5173"
+    
