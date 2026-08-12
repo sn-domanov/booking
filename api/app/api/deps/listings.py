@@ -2,22 +2,18 @@ from typing import Annotated
 
 from fastapi import Depends
 
-from app.api.deps.database import SessionDep
+from app.api.deps.database import UoWDep
 from app.api.deps.settings import SettingsDep
-from app.domains.listings.repository import ListingRepository
 from app.domains.listings.service import ListingService
 
 
 def get_listing_service(
     settings: SettingsDep,
-    session: SessionDep,
+    uow: UoWDep,
 ) -> ListingService:
-    repository = ListingRepository(session)
-
     return ListingService(
         settings=settings,
-        repository=repository,
-        session=session,
+        uow=uow,
     )
 
 

@@ -1,10 +1,8 @@
 from collections.abc import Sequence
 from uuid import UUID
 
-# TODO introduce UoW pattern
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.core.config import Settings
+from app.db.uow import UnitOfWork
 from app.domains.listings.api.schemas import (
     ListingCreate,
     ListingReplace,
@@ -12,113 +10,83 @@ from app.domains.listings.api.schemas import (
 )
 from app.domains.listings.models import Listing
 
-from .repository import ListingRepository
-
 
 # TODO add core.exceptions
-class ListingNotFound(Exception): ...
+class ListingNotFoundError(Exception): ...
 
 
 class ListingService:
     def __init__(
         self,
         settings: Settings,
-        repository: ListingRepository,
-        session: AsyncSession,
+        uow: UnitOfWork,
     ):
         self.settings = settings
-        self.repository = repository
-        self.session = session
+        self.uow = uow
 
-    async def create(self, *, data: ListingCreate) -> Listing:
-        listing = Listing(
-            name=data.name,
-            description=data.description,
-            price_per_night=data.price_per_night,
-            max_guests=data.max_guests,
-        )
-
-        self.repository.add(listing=listing)
-
-        try:
-            await self.session.commit()
-        except Exception:
-            await self.session.rollback()
-            raise
-
-        return listing
-
-    async def list(self) -> Sequence[Listing]:
-        return await self.repository.list()
-
-    async def get(self, *, listing_id: UUID) -> Listing:
-        listing = await self.repository.get(listing_id=listing_id)
+    async def _get_listing(self, listing_id: UUID) -> Listing:
+        listing = await self.uow.listings.get(listing_id=listing_id)
 
         if listing is None:
-            raise ListingNotFound(f"Listing with ID {listing_id} not found")
+            raise ListingNotFoundError(f"Listing with ID {listing_id} not found")
 
         return listing
 
-    async def update(
+    async def create_listing(self, *, data: ListingCreate) -> Listing:
+        async with self.uow.transaction():
+            listing = Listing(
+                name=data.name,
+                description=data.description,
+                price_per_night=data.price_per_night,
+                max_guests=data.max_guests,
+            )
+
+            self.uow.listings.add(listing=listing)
+
+            return listing
+
+    async def list_listings(self) -> Sequence[Listing]:
+        return await self.uow.listings.list()
+
+    async def get_listing(self, *, listing_id: UUID) -> Listing:
+        return await self._get_listing(listing_id)
+
+    async def update_listing(
         self,
         *,
         listing_id: UUID,
         data: ListingUpdate,
     ) -> Listing:
-        listing = await self.repository.get(listing_id=listing_id)
-
-        if listing is None:
-            raise ListingNotFound(f"Listing with ID {listing_id} not found")
-
         # Partial update, exclude omitted fields
         update_data = data.model_dump(exclude_unset=True)
 
-        for field, value in update_data.items():
-            setattr(listing, field, value)
+        async with self.uow.transaction():
+            listing = await self._get_listing(listing_id)
 
-        try:
-            await self.session.commit()
-        except Exception:
-            await self.session.rollback()
-            raise
+            for field, value in update_data.items():
+                setattr(listing, field, value)
 
-        return listing
+            return listing
 
-    async def replace(
+    async def replace_listing(
         self,
         *,
         listing_id: UUID,
         data: ListingReplace,
     ) -> Listing:
-        listing = await self.repository.get(listing_id=listing_id)
+        async with self.uow.transaction():
+            listing = await self._get_listing(listing_id)
 
-        if listing is None:
-            raise ListingNotFound(f"Listing with ID {listing_id} not found")
+            # Full update
+            listing.name = data.name
+            listing.description = data.description
+            listing.price_per_night = data.price_per_night
+            listing.max_guests = data.max_guests
 
-        # Full update
-        listing.name = data.name
-        listing.description = data.description
-        listing.price_per_night = data.price_per_night
-        listing.max_guests = data.max_guests
+            return listing
 
-        try:
-            await self.session.commit()
-        except Exception:
-            await self.session.rollback()
-            raise
+    async def delete_listing(self, *, listing_id: UUID) -> None:
+        async with self.uow.transaction():
+            listing = await self._get_listing(listing_id)
 
-        return listing
-
-    async def delete(self, *, listing_id: UUID) -> None:
-        listing = await self.repository.get(listing_id=listing_id)
-
-        if listing is None:
-            raise ListingNotFound(f"Listing with ID {listing_id} not found")
-
-        await self.repository.delete(listing=listing)
-
-        try:
-            await self.session.commit()
-        except Exception:
-            await self.session.rollback()
-            raise
+            await self.uow.listings.delete(listing=listing)

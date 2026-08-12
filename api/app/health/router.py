@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, status
 from sqlalchemy import text
 
-from app.db.session import async_session_factory
+from app.db.session import session_factory
 
 router = APIRouter(prefix="/health", tags=["health"])
 
@@ -14,7 +14,7 @@ async def liveness():
 @router.get("/ready")
 async def readiness():
     try:
-        async with async_session_factory() as session:
+        async with session_factory() as session:
             await session.execute(text("SELECT 1"))
     # N.B. health check should not leak internal errors
     except Exception:

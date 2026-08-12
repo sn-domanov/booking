@@ -1,17 +1,15 @@
+from collections.abc import AsyncGenerator
 from typing import Annotated
 
 from fastapi import Depends
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.session import async_session_factory
-
-
-async def get_session():
-    async with async_session_factory() as session:
-        yield session
+from app.db.session import session_factory
+from app.db.uow import UnitOfWork
 
 
-SessionDep = Annotated[
-    AsyncSession,
-    Depends(get_session),
-]
+async def get_uow() -> AsyncGenerator[UnitOfWork]:
+    async with session_factory() as session:
+        yield UnitOfWork(session)
+
+
+UoWDep = Annotated[UnitOfWork, Depends(get_uow)]
