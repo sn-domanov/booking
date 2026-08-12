@@ -1,3 +1,6 @@
+from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domains.listings.repository import ListingRepository
@@ -13,3 +16,13 @@ class UnitOfWork:
 
     async def rollback(self) -> None:
         await self.session.rollback()
+
+    @asynccontextmanager
+    async def transaction(self) -> AsyncGenerator[UnitOfWork]:
+        try:
+            yield self
+            # TODO translate database errors
+            await self.commit()
+        except Exception:
+            await self.rollback()
+            raise
