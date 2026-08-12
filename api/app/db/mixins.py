@@ -8,6 +8,8 @@ from sqlalchemy.orm import Mapped, mapped_column
 # server_default: database-side INSERT default
 # onupdate: SQLAlchemy-generated UPDATE expression
 class TimestampMixin:
+    __mapper_args__ = {"eager_defaults": True}
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),
