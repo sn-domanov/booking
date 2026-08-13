@@ -10,8 +10,8 @@ from app.api.schemas import ApiSchema
 class ListingCreate(ApiSchema):
     name: str
     description: str
-    price_per_night: Decimal
-    max_guests: int
+    price_per_night: Decimal = Field(gt=0)
+    max_guests: int = Field(gt=0)
 
     # TODO add core.normalization
     @field_validator("name", "description")
