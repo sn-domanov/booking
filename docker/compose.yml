@@ -39,6 +39,15 @@ services:
       timeout: 5s
       retries: 5
 
+  db-test:
+    image: postgres:18.4-trixie
+    environment:
+      POSTGRES_DB: booking_test
+      POSTGRES_USER: booking_test
+      POSTGRES_PASSWORD: booking_test
+    tmpfs:
+      - /var/lib/postgresql
+
   web:
     build:
       context: ../web
