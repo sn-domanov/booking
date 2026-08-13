@@ -16,7 +16,7 @@ services:
       # `:Z` - private SELinux label, `:z` - global
       - ../:/app:z
     working_dir: /app/api
-    # Rootless container + Podman - have to map UID/GID to make bind-mounted files writable
+    # Rootless container + Podman. Map UID/GID to make bind-mounted files writable
     user: "1000:1000"
     userns_mode: keep-id
     ports:

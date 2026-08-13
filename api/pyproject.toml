@@ -15,6 +15,7 @@ dependencies = [
 dev = [
     "pytest>=9.1.1",
     "pytest-asyncio>=1.4.0",
+    "pytest-env>=1.7.0",
     "ruff>=0.16.2",
 ]
 
@@ -35,3 +36,10 @@ typeCheckingMode = "standard"
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
+env = [
+    "APP_ENV=testing",
+    "DB__HOST=db-test",
+    "DB__NAME=booking_test",
+    "DB__USER=booking_test",
+    "DB__PASSWORD=booking_test",
+]
