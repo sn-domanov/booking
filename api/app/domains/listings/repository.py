@@ -16,7 +16,7 @@ class ListingRepository:
 
     # TODO add pagination
     async def list(self) -> Sequence[Listing]:
-        stmt = select(Listing).order_by(Listing.created_at.desc())
+        stmt = select(Listing).order_by(Listing.created_at.desc(), Listing.id.desc())
         result = await self.session.scalars(stmt)
 
         return result.all()
