@@ -1,7 +1,6 @@
 from collections.abc import Sequence
 from uuid import UUID
 
-from app.core.config import Settings
 from app.db.uow import UnitOfWork
 from app.domains.listings.api.schemas import (
     ListingCreate,
@@ -18,10 +17,8 @@ class ListingNotFoundError(Exception): ...
 class ListingService:
     def __init__(
         self,
-        settings: Settings,
         uow: UnitOfWork,
     ):
-        self.settings = settings
         self.uow = uow
 
     async def _get_listing(self, listing_id: UUID) -> Listing:
