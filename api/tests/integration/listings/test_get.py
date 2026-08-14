@@ -1,3 +1,5 @@
+import uuid
+
 from httpx import AsyncClient
 
 from app.db.uow import UnitOfWork
@@ -32,3 +34,23 @@ async def test_listing_get_response_shape(client: AsyncClient, uow: UnitOfWork) 
 
     assert response.status_code == 200
     ListingResponse.model_validate(response.json())  # or manual field assertions
+
+
+# ─────────────────────────────────────────
+# 404 Not Found
+# ─────────────────────────────────────────
+
+
+async def test_listing_get_not_found(client: AsyncClient):
+    response = await client.get(
+        f"/api/v1/listings/{uuid.UUID('00000000-0000-0000-0000-000000000000')}",
+    )
+
+    assert response.status_code == 404
+
+    data = response.json()
+
+    assert data["code"] == "not_found"
+    assert (
+        "listing with id 00000000-0000-0000-0000-000000000000" in data["detail"].lower()
+    )
