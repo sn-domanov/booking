@@ -1,0 +1,38 @@
+from fastapi import Request
+from fastapi.responses import JSONResponse
+
+from app.core.exceptions import (
+    ApplicationError,
+    NotFoundError,
+)
+
+
+async def application_exception_handler(
+    request: Request,
+    exc: Exception,
+) -> JSONResponse:
+    # `exc` should only be `StarletteHTTPException` at runtime
+    # this is a workaround to avoid static typechecker issue with
+    # add_exception_handler's `exc_class_or_status_code: int | type[Exception]`
+    if not isinstance(exc, ApplicationError):
+        raise TypeError("application_exception_handler received non-ApplicationError")
+
+    DEFAULT_STATUS_CODE_MAP = {
+        NotFoundError: 404,
+        ApplicationError: 500,
+    }
+
+    # Most specific exception wins, else Internal Server Error
+    for exc_type in type(exc).__mro__:
+        if exc_type in DEFAULT_STATUS_CODE_MAP:
+            status_code = DEFAULT_STATUS_CODE_MAP[exc_type]
+            break
+    else:
+        status_code = 500
+
+    response = JSONResponse(
+        status_code=status_code,
+        content=exc.to_dict(),
+    )
+
+    return response

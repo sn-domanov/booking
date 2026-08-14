@@ -2,8 +2,10 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
+from app.api.exception_handlers import application_exception_handler
 from app.api.router import api_v1_router
 from app.core.config import get_settings
+from app.core.exceptions import ApplicationError
 from app.db import init_db
 from app.db.session import engine
 from app.health.router import router as health_router
@@ -26,9 +28,14 @@ def create_app() -> FastAPI:
         openapi_url="/openapi.json" if settings.docs_enabled else None,
     )
 
+    register_exception_handlers(app)
     register_routers(app)
 
     return app
+
+
+def register_exception_handlers(app: FastAPI) -> None:
+    app.add_exception_handler(ApplicationError, application_exception_handler)
 
 
 def register_routers(app: FastAPI) -> None:
