@@ -1,6 +1,7 @@
 from collections.abc import Sequence
 from uuid import UUID
 
+from app.core.exceptions import NotFoundError
 from app.db.uow import UnitOfWork
 from app.domains.listings.api.schemas import (
     ListingCreate,
@@ -8,10 +9,6 @@ from app.domains.listings.api.schemas import (
     ListingUpdate,
 )
 from app.domains.listings.models import Listing
-
-
-# TODO add core.exceptions
-class ListingNotFoundError(Exception): ...
 
 
 class ListingService:
@@ -25,7 +22,7 @@ class ListingService:
         listing = await self.uow.listings.get(listing_id=listing_id)
 
         if listing is None:
-            raise ListingNotFoundError(f"Listing with ID {listing_id} not found")
+            raise NotFoundError(f"Listing with ID {listing_id} not found")
 
         return listing
 
