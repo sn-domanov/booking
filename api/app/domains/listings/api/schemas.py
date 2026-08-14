@@ -8,30 +8,30 @@ from app.api.schemas import ApiSchema
 
 
 class ListingCreate(ApiSchema):
-    name: str
-    description: str
-    price_per_night: Decimal = Field(gt=0)
+    name: str = Field(min_length=1, max_length=255)
+    description: str = Field(min_length=1, max_length=5_000)
+    price_per_night: Decimal = Field(gt=0, le=100_000)
     max_guests: int = Field(gt=0)
 
     # TODO add core.normalization
-    @field_validator("name", "description")
+    @field_validator("name", "description", mode="before")
     @classmethod
     def strip_whitespace(cls, value: str) -> str:
         return value.strip()
 
 
 class ListingUpdate(ApiSchema):
-    name: str | None = None
-    description: str | None = None
-    price_per_night: Decimal | None = None
-    max_guests: int | None = None
+    name: str | None = Field(default=None, min_length=1, max_length=255)
+    description: str | None = Field(default=None, min_length=1, max_length=5_000)
+    price_per_night: Decimal | None = Field(default=None, gt=0, le=100_000)
+    max_guests: int | None = Field(default=None, gt=0)
 
 
 class ListingReplace(ApiSchema):
-    name: str
-    description: str
-    price_per_night: Decimal
-    max_guests: int
+    name: str = Field(min_length=1, max_length=255)
+    description: str = Field(min_length=1, max_length=5_000)
+    price_per_night: Decimal = Field(gt=0, le=100_000)
+    max_guests: int = Field(gt=0)
 
 
 class ListingResponse(ApiSchema):

@@ -4,6 +4,7 @@ from fastapi.responses import JSONResponse
 from app.core.exceptions import (
     ApplicationError,
     NotFoundError,
+    ValidationError,
 )
 
 
@@ -19,6 +20,7 @@ async def application_exception_handler(
 
     DEFAULT_STATUS_CODE_MAP = {
         NotFoundError: 404,
+        ValidationError: 422,
         ApplicationError: 500,
     }
 

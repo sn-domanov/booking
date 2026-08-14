@@ -1,7 +1,7 @@
 from collections.abc import Sequence
 from uuid import UUID
 
-from app.core.exceptions import NotFoundError
+from app.core.exceptions import NotFoundError, ValidationError
 from app.db.uow import UnitOfWork
 from app.domains.listings.api.schemas import (
     ListingCreate,
@@ -53,6 +53,9 @@ class ListingService:
     ) -> Listing:
         # Partial update, exclude omitted fields
         update_data = data.model_dump(exclude_unset=True)
+
+        if not update_data:
+            raise ValidationError("No fields to update")
 
         async with self.uow.transaction():
             listing = await self._get_listing(listing_id)
