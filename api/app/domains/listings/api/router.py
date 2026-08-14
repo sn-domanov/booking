@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, status
 
 from app.api.deps.listings import ListingServiceDep
 from app.domains.listings.api.schemas import (
@@ -9,7 +9,6 @@ from app.domains.listings.api.schemas import (
     ListingResponse,
     ListingUpdate,
 )
-from app.domains.listings.service import ListingNotFoundError
 
 router = APIRouter(prefix="/listings", tags=["listings"])
 
@@ -48,13 +47,7 @@ async def get_listing(
     listing_id: UUID,
     service: ListingServiceDep,
 ):
-    try:
-        listing = await service.get_listing(listing_id=listing_id)
-    except ListingNotFoundError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(exc),
-        ) from exc
+    listing = await service.get_listing(listing_id=listing_id)
 
     return listing
 
@@ -68,16 +61,10 @@ async def update_listing(
     data: ListingUpdate,
     service: ListingServiceDep,
 ):
-    try:
-        listing = await service.update_listing(
-            listing_id=listing_id,
-            data=data,
-        )
-    except ListingNotFoundError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(exc),
-        ) from exc
+    listing = await service.update_listing(
+        listing_id=listing_id,
+        data=data,
+    )
 
     return listing
 
@@ -91,16 +78,10 @@ async def replace_listing(
     data: ListingReplace,
     service: ListingServiceDep,
 ):
-    try:
-        listing = await service.replace_listing(
-            listing_id=listing_id,
-            data=data,
-        )
-    except ListingNotFoundError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(exc),
-        ) from exc
+    listing = await service.replace_listing(
+        listing_id=listing_id,
+        data=data,
+    )
 
     return listing
 
@@ -113,10 +94,4 @@ async def delete_listing(
     listing_id: UUID,
     service: ListingServiceDep,
 ) -> None:
-    try:
-        await service.delete_listing(listing_id=listing_id)
-    except ListingNotFoundError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(exc),
-        ) from exc
+    await service.delete_listing(listing_id=listing_id)
