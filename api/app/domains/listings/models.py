@@ -36,7 +36,7 @@ class Listing(TimestampMixin, Base):
         nullable=False,
     )
     price_per_night: Mapped[Decimal] = mapped_column(
-        Numeric(10, 2),
+        Numeric(8, 2),
         nullable=False,
     )
     max_guests: Mapped[int] = mapped_column(nullable=False)
