@@ -24,3 +24,7 @@ class ApplicationError(Exception):
 
 class NotFoundError(ApplicationError):
     code = "not_found"
+
+
+class ValidationError(ApplicationError):
+    code = "validation_error"
