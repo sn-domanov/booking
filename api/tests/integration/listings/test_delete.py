@@ -1,52 +1,33 @@
 import uuid
-from datetime import datetime
 
 from httpx import AsyncClient
 
 from app.db.uow import UnitOfWork
-from app.domains.listings.api.schemas import ListingResponse
 from tests.helpers.listings import create_listing
 
 # ─────────────────────────────────────────
-# GET /api/v1/listings/{listing_id}
+# DELETE /api/v1/listings
 # ─────────────────────────────────────────
 
 # ─────────────────────────────────────────
-# 200 OK
+# 204 No Content
 # ─────────────────────────────────────────
 
 
-async def test_listing_get_success(client: AsyncClient, uow: UnitOfWork) -> None:
+async def test_listing_delete_success(client: AsyncClient, uow: UnitOfWork) -> None:
     listing = await create_listing(uow)
 
-    response = await client.get(
+    delete_response = await client.delete(
         f"/api/v1/listings/{listing.id}",
     )
 
-    assert response.status_code == 200
+    assert delete_response.status_code == 204
 
-    data = response.json()
-
-    assert data["id"] == str(listing.id)
-
-
-async def test_listing_get_response_shape(client: AsyncClient, uow: UnitOfWork) -> None:
-    listing = await create_listing(uow)
-
-    response = await client.get(
+    get_response = await client.get(
         f"/api/v1/listings/{listing.id}",
     )
 
-    assert response.status_code == 200
-    data = ListingResponse.model_validate(response.json())  # or manual field assertions
-
-    # Timestamps exist + parsed correctly
-    assert isinstance(data.created_at, datetime)
-    assert isinstance(data.updated_at, datetime)
-
-    # Timestamps TZ-aware
-    assert data.created_at.tzinfo is not None
-    assert data.updated_at.tzinfo is not None
+    assert get_response.status_code == 404
 
 
 # ─────────────────────────────────────────
@@ -54,12 +35,10 @@ async def test_listing_get_response_shape(client: AsyncClient, uow: UnitOfWork) 
 # ─────────────────────────────────────────
 
 
-async def test_listing_get_not_found(client: AsyncClient) -> None:
+async def test_listing_delete_not_found(client: AsyncClient) -> None:
     listing_id = uuid.UUID("00000000-0000-0000-0000-000000000000")
 
-    response = await client.get(
-        f"/api/v1/listings/{listing_id}",
-    )
+    response = await client.delete(f"/api/v1/listings/{listing_id}")
 
     assert response.status_code == 404
 

@@ -15,12 +15,16 @@ from tests.helpers.listings import create_listing
 
 
 async def test_listings_list_success(client: AsyncClient, uow: UnitOfWork) -> None:
-    for _ in range(5):
-        await create_listing(uow)
+    listings = [await create_listing(uow) for _ in range(5)]
 
     response = await client.get("/api/v1/listings")
 
     assert response.status_code == 200
+
+    data = response.json()
+
+    assert len(data) == len(listings)
+    assert {item["id"] for item in data} == {str(listing.id) for listing in listings}
 
 
 async def test_listings_list_returns_newest_first(
@@ -66,11 +70,11 @@ async def test_listings_list_uses_id_as_tiebreaker_for_equal_timestamps(
             )
         )
 
-    res = await client.get("/api/v1/listings")
+    response = await client.get("/api/v1/listings")
 
-    assert res.status_code == 200
+    assert response.status_code == 200
 
-    data = res.json()
+    data = response.json()
 
     expected = sorted(
         [str(listing.id) for listing in listings],

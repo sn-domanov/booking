@@ -1,3 +1,5 @@
+import uuid
+
 import pytest
 from httpx import AsyncClient
 
@@ -18,10 +20,21 @@ async def test_listing_create_success(client: AsyncClient) -> None:
         "max_guests": 2,
     }
 
-    response = await client.post("/api/v1/listings", json=payload)
+    response = await client.post(
+        "/api/v1/listings",
+        json=payload,
+    )
 
     assert response.status_code == 201
-    assert response.json()["id"] is not None
+
+    data = response.json()
+
+    # Generated fields
+    assert data["id"] is not None
+    uuid.UUID(data["id"])
+
+    assert data["createdAt"] is not None
+    assert data["updatedAt"] is not None
 
 
 @pytest.mark.parametrize(
@@ -46,7 +59,10 @@ async def test_listing_create_normalization(
         "max_guests": 2,
     }
 
-    response = await client.post("/api/v1/listings", json=payload)
+    response = await client.post(
+        "/api/v1/listings",
+        json=payload,
+    )
 
     assert response.status_code == 201
 
@@ -64,7 +80,7 @@ async def test_listing_create_normalization(
     "field",
     ["name", "description", "price_per_night", "max_guests"],
 )
-async def test_listing_create_missing_required_field(
+async def test_listing_create_rejects_missing_required_field(
     client: AsyncClient,
     field: str,
 ) -> None:
@@ -76,7 +92,10 @@ async def test_listing_create_missing_required_field(
     }
     del payload[field]
 
-    response = await client.post("/api/v1/listings", json=payload)
+    response = await client.post(
+        "/api/v1/listings",
+        json=payload,
+    )
 
     assert response.status_code == 422
 
@@ -84,8 +103,13 @@ async def test_listing_create_missing_required_field(
 @pytest.mark.parametrize(
     ("field", "value"),
     [
+        ("name", ""),
+        ("name", "A" * 256),
+        ("description", ""),
+        ("description", "A" * 5001),
         ("price_per_night", "0"),
-        ("price_per_night", "-10"),
+        ("price_per_night", "-0.01"),
+        ("price_per_night", "100_000.01"),
         ("max_guests", 0),
         ("max_guests", -1),
     ],
@@ -103,6 +127,9 @@ async def test_listing_create_rejects_invalid_values(
     }
     payload[field] = value
 
-    response = await client.post("/api/v1/listings", json=payload)
+    response = await client.post(
+        "/api/v1/listings",
+        json=payload,
+    )
 
     assert response.status_code == 422
