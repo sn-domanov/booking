@@ -51,6 +51,14 @@ class Settings(BaseSettings):
 
     db: DatabaseSettings
 
+    media_root: str = "/media"
+    media_base_url: str = "/media"
+
+    # Limits
+    max_upload_size_bytes: int = 10 * 1024 * 1024  # 10MB
+    max_image_dimension: int = 10_000
+    max_image_pixels: int = 20_000_000
+
 
 @lru_cache
 def get_settings() -> Settings:

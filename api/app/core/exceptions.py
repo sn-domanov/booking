@@ -17,6 +17,10 @@ class ApplicationError(Exception):
         }
 
 
+class ImageProcessingError(ApplicationError):
+    code = "image_processing_error"
+
+
 # ─────────────────────────────────────────
 # Application exceptions
 # ─────────────────────────────────────────
@@ -28,3 +32,15 @@ class NotFoundError(ApplicationError):
 
 class ValidationError(ApplicationError):
     code = "validation_error"
+
+
+class ImageTooLargeError(ImageProcessingError):
+    code = "image_too_large"
+
+
+class InvalidImageError(ImageProcessingError):
+    code = "invalid_image"
+
+
+class ImageDimensionError(ImageProcessingError):
+    code = "image_dimensions_too_large"

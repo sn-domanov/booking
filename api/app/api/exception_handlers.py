@@ -3,6 +3,10 @@ from fastapi.responses import JSONResponse
 
 from app.core.exceptions import (
     ApplicationError,
+    ImageDimensionError,
+    ImageProcessingError,
+    ImageTooLargeError,
+    InvalidImageError,
     NotFoundError,
     ValidationError,
 )
@@ -19,8 +23,12 @@ async def application_exception_handler(
         raise TypeError("application_exception_handler received non-ApplicationError")
 
     DEFAULT_STATUS_CODE_MAP = {
+        ImageProcessingError: 400,
         NotFoundError: 404,
+        ImageTooLargeError: 413,
         ValidationError: 422,
+        ImageDimensionError: 422,
+        InvalidImageError: 422,
         ApplicationError: 500,
     }
 
