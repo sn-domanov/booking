@@ -1,4 +1,5 @@
 from functools import lru_cache
+from pathlib import Path
 from typing import Literal
 
 from pydantic import BaseModel, SecretStr, computed_field
@@ -30,6 +31,12 @@ class DatabaseSettings(BaseModel):
         )
 
 
+class LocalObjectStorageSettings(BaseModel):
+    base_dir: Path = Path(__file__).resolve().parents[2]
+    root: Path = base_dir / "media"
+    base_url: str = "/media"
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_nested_delimiter="__",
@@ -51,8 +58,7 @@ class Settings(BaseSettings):
 
     db: DatabaseSettings
 
-    media_root: str = "/media"
-    media_base_url: str = "/media"
+    local_storage: LocalObjectStorageSettings = LocalObjectStorageSettings()
 
     # Limits
     max_upload_size_bytes: int = 10 * 1024 * 1024  # 10MB

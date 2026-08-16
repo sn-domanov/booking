@@ -21,6 +21,10 @@ class ImageProcessingError(ApplicationError):
     code = "image_processing_error"
 
 
+class StorageError(ApplicationError):
+    code = "storage_error"
+
+
 # ─────────────────────────────────────────
 # Application exceptions
 # ─────────────────────────────────────────
@@ -44,3 +48,7 @@ class InvalidImageError(ImageProcessingError):
 
 class ImageDimensionError(ImageProcessingError):
     code = "image_dimensions_too_large"
+
+
+class InvalidStorageKey(StorageError):
+    code = "invalid_storage_key"

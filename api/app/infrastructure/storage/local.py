@@ -1,12 +1,12 @@
 from pathlib import Path
 
 from app.core.config import Settings
+from app.core.exceptions import InvalidStorageKey
 
 
 class LocalObjectStorage:
     def __init__(self, settings: Settings) -> None:
-        self.root = Path(settings.media_root)
-        self.base_url = settings.media_base_url
+        self.settings = settings
 
     async def put(
         self,
@@ -15,21 +15,23 @@ class LocalObjectStorage:
         content: bytes,
         content_type: str,
     ) -> None:
-        path = self._path(storage_key)
+        filepath = self._path_for(storage_key)
 
-        path.parent.mkdir(
+        filepath.parent.mkdir(
             parents=True,
             exist_ok=True,
         )
 
-        path.write_bytes(content)
+        filepath.write_bytes(content)
 
     async def delete(
         self,
         *,
         storage_key: str,
     ) -> None:
-        self._path(storage_key).unlink(
+        filepath = self._path_for(storage_key)
+
+        filepath.unlink(
             missing_ok=True,
         )
 
@@ -38,7 +40,13 @@ class LocalObjectStorage:
         *,
         storage_key: str,
     ) -> str:
-        return f"{self.base_url}/{storage_key}"
+        return f"{self.settings.local_storage.base_url}/{storage_key}"
 
-    def _path(self, storage_key: str) -> Path:
-        return self.root / storage_key
+    def _path_for(self, storage_key: str) -> Path:
+        root = self.settings.local_storage.root.resolve()
+        filepath = (root / storage_key).resolve()
+
+        if not filepath.is_relative_to(root):
+            raise InvalidStorageKey("Invalid storage key")
+
+        return filepath
