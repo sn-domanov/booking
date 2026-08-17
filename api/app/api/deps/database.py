@@ -12,4 +12,7 @@ async def get_uow() -> AsyncGenerator[UnitOfWork]:
         yield UnitOfWork(session)
 
 
-UoWDep = Annotated[UnitOfWork, Depends(get_uow)]
+UoWDep = Annotated[
+    UnitOfWork,
+    Depends(get_uow),
+]

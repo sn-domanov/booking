@@ -3,7 +3,13 @@ from fastapi.responses import JSONResponse
 
 from app.core.exceptions import (
     ApplicationError,
+    ImageDimensionError,
+    ImageProcessingError,
+    ImageTooLargeError,
+    InvalidImageError,
+    InvalidStorageKey,
     NotFoundError,
+    StorageError,
     ValidationError,
 )
 
@@ -19,9 +25,15 @@ async def application_exception_handler(
         raise TypeError("application_exception_handler received non-ApplicationError")
 
     DEFAULT_STATUS_CODE_MAP = {
+        ImageProcessingError: 400,
+        InvalidStorageKey: 400,
         NotFoundError: 404,
+        ImageTooLargeError: 413,
         ValidationError: 422,
+        ImageDimensionError: 413,
+        InvalidImageError: 422,
         ApplicationError: 500,
+        StorageError: 500,
     }
 
     # Most specific exception wins, else Internal Server Error

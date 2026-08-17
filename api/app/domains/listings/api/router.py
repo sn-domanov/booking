@@ -3,6 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter, status
 
 from app.api.deps.listings import ListingServiceDep
+from app.domains.listings.api.images.router import router as images_router
 from app.domains.listings.api.schemas import (
     ListingCreate,
     ListingReplace,
@@ -95,3 +96,6 @@ async def delete_listing(
     service: ListingServiceDep,
 ) -> None:
     await service.delete_listing(listing_id=listing_id)
+
+
+router.include_router(images_router)
