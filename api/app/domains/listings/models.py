@@ -69,7 +69,6 @@ class ListingImage(TimestampMixin, Base):
     id: Mapped[UUID] = mapped_column(
         PG_UUID(as_uuid=True),
         primary_key=True,
-        default=uuid7,
     )
     listing_id: Mapped[UUID] = mapped_column(
         PG_UUID(as_uuid=True),
