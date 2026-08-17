@@ -1,5 +1,5 @@
 from collections.abc import Sequence
-from uuid import UUID
+from uuid import UUID, uuid7
 
 from app.core.exceptions import NotFoundError, ValidationError
 from app.db.uow import UnitOfWork
@@ -8,15 +8,24 @@ from app.domains.listings.api.schemas import (
     ListingReplace,
     ListingUpdate,
 )
+from app.domains.listings.dto import ListingImageResult
+from app.domains.listings.media import LISTING_IMAGE_SPEC
 from app.domains.listings.models import Listing
+from app.domains.media.service import MediaService
 
 
 class ListingService:
     def __init__(
         self,
         uow: UnitOfWork,
+        media_service: MediaService,
     ):
         self.uow = uow
+        self.media_service = media_service
+
+    # ─────────────────────────────────────────
+    # Listings
+    # ─────────────────────────────────────────
 
     async def _get_listing(self, listing_id: UUID) -> Listing:
         listing = await self.uow.listings.get(listing_id=listing_id)
@@ -87,3 +96,81 @@ class ListingService:
             listing = await self._get_listing(listing_id)
 
             await self.uow.listings.delete(listing=listing)
+
+    # ─────────────────────────────────────────
+    # Listing images
+    # ─────────────────────────────────────────
+
+    async def add_image(
+        self,
+        *,
+        listing_id: UUID,
+        image_position: int,
+        content: bytes,
+    ) -> ListingImageResult:
+        async with self.uow.transaction():
+            # Check that listing exists
+            await self._get_listing(listing_id)
+
+            image_id = uuid7()
+
+            media = await self.media_service.add_image(
+                content=content,
+                storage_prefix=f"listings/{listing_id}/images",
+                media_id=image_id,
+                spec=LISTING_IMAGE_SPEC,
+            )
+
+            image = await self.uow.listing_images.create(
+                image_id=image_id,
+                listing_id=listing_id,
+                position=image_position,
+                storage_key=media.storage_key,
+                content_type=media.content_type,
+            )
+
+        return ListingImageResult(
+            id=image.id,
+            url=media.url,
+            content_type=image.content_type,
+            position=image.position,
+            created_at=image.created_at,
+            updated_at=image.updated_at,
+        )
+
+    async def list_images(self, *, listing_id: UUID) -> list[ListingImageResult]:
+        images = await self.uow.listing_images.list(listing_id=listing_id)
+
+        return [
+            ListingImageResult(
+                id=image.id,
+                url=self.media_service.get_url(
+                    storage_key=image.storage_key,
+                ),
+                content_type=image.content_type,
+                position=image.position,
+                created_at=image.created_at,
+                updated_at=image.updated_at,
+            )
+            for image in images
+        ]
+
+    async def delete_image(
+        self,
+        *,
+        listing_id: UUID,
+        image_id: UUID,
+    ) -> None:
+        async with self.uow.transaction():
+            # Also check that image is a sub-resource of the listing
+            image = await self.uow.listing_images.get(
+                listing_id=listing_id,
+                image_id=image_id,
+            )
+
+            if image is None:
+                raise NotFoundError("Listing image not found")
+
+            await self.uow.listing_images.delete(image=image)
+
+        await self.media_service.delete_image(storage_key=image.storage_key)

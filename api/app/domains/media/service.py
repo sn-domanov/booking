@@ -1,4 +1,4 @@
-from uuid import uuid7
+from uuid import UUID
 
 from app.domains.media.types import MediaObject
 from app.infrastructure.image.protocol import ImageProcessor
@@ -23,11 +23,11 @@ class MediaService:
         *,
         content: bytes,
         storage_prefix: str,
+        media_id: UUID,
         spec: ImageSpec,
     ) -> MediaObject:
         processed = self.image_processor.process(content, spec)
 
-        media_id = uuid7()
         storage_key = f"{storage_prefix}/{media_id}.{spec.format.lower()}"
 
         await self.storage.put(
