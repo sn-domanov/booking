@@ -41,8 +41,20 @@ typeCheckingMode = "standard"
 asyncio_mode = "auto"
 env = [
     "APP_ENV=testing",
+
     "DB__HOST=db-test",
     "DB__NAME=booking_test",
     "DB__USER=booking_test",
     "DB__PASSWORD=booking_test",
+
+    # Unset endpoint URL
+    "U:S3__ENDPOINT_URL",
+    "S3__ACCESS_KEY=booking_test",
+    "S3__SECRET_KEY=booking_test",
+    "S3__REGION=us-east-1",
+    "S3__BUCKET=booking-test",
+    "S3__PUBLIC_BASE_URL=http://test-storage",
+    "AWS_ACCESS_KEY_ID=booking_test",
+    "AWS_SECRET_ACCESS_KEY=booking_test",
+    "AWS_DEFAULT_REGION=us-east-1"
 ]

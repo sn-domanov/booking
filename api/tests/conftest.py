@@ -1,7 +1,9 @@
 from collections.abc import AsyncGenerator
 
+import boto3
 import pytest
 from httpx import ASGITransport, AsyncClient
+from moto import mock_aws
 from sqlalchemy import NullPool
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
@@ -95,6 +97,23 @@ def uow(session: AsyncSession) -> UnitOfWork:
 
 
 # ─────────────────────────────────────────
+# External services
+# ─────────────────────────────────────────
+
+
+@pytest.fixture
+def moto_s3():
+    with mock_aws():
+        client = boto3.client(
+            "s3",
+            region_name="us-east-1",
+        )
+        client.create_bucket(Bucket=settings.s3.bucket)
+
+        yield client
+
+
+# ─────────────────────────────────────────
 # FastAPI client
 # ─────────────────────────────────────────
 
@@ -102,10 +121,12 @@ def uow(session: AsyncSession) -> UnitOfWork:
 @pytest.fixture
 async def client(
     uow: UnitOfWork,
+    moto_s3,
 ) -> AsyncGenerator[AsyncClient]:
     """
-    HTTP client configured with:
-    - test UnitOfWork dependency
+    HTTP client configured with test dependencies:
+    - test UnitOfWork
+    - in-memory S3 service provided by Moto
     """
 
     async def get_test_uow() -> AsyncGenerator[UnitOfWork]:
