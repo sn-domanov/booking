@@ -37,6 +37,16 @@ class LocalObjectStorageSettings(BaseModel):
     base_url: str = "/media"
 
 
+class S3Settings(BaseModel):
+    access_key: str
+    secret_key: SecretStr
+
+    endpoint_url: str | None = None
+    public_base_url: str
+    region: str
+    bucket: str
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_nested_delimiter="__",
@@ -59,6 +69,7 @@ class Settings(BaseSettings):
     db: DatabaseSettings
 
     local_storage: LocalObjectStorageSettings = LocalObjectStorageSettings()
+    s3: S3Settings
 
     # Limits
     max_upload_size_bytes: int = 10 * 1024 * 1024  # 10MB
