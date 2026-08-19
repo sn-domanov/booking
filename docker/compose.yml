@@ -12,6 +12,12 @@ services:
       DB__NAME: ${POSTGRES_DB}
       DB__USER: ${POSTGRES_USER}
       DB__PASSWORD: ${POSTGRES_PASSWORD}
+      S3__ACCESS_KEY: ${S3_ACCESS_KEY}
+      S3__SECRET_KEY: ${S3_SECRET_KEY}
+      S3__ENDPOINT_URL: ${S3_ENDPOINT_URL}
+      S3__PUBLIC_BASE_URL: ${S3_PUBLIC_BASE_URL}
+      S3__REGION: ${S3_REGION}
+      S3__BUCKET: ${S3_BUCKET}
     healthcheck:
       test:
         - CMD
@@ -23,6 +29,8 @@ services:
       retries: 5
     depends_on:
       db:
+        condition: service_healthy
+      s3:
         condition: service_healthy
     
   db:
@@ -48,6 +56,19 @@ services:
     tmpfs:
       - /var/lib/postgresql
 
+  s3:
+    image: rustfs/rustfs:1.0.0-rc.2-glibc
+    environment:
+      RUSTFS_ACCESS_KEY: ${S3_ACCESS_KEY}
+      RUSTFS_SECRET_KEY: ${S3_SECRET_KEY}
+    volumes:
+      - rustfs-data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/health/ready"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   web:
     build:
       context: ../web
@@ -57,3 +78,4 @@ services:
 
 volumes:
   postgres_data:
+  rustfs-data:
