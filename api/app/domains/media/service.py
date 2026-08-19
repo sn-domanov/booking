@@ -43,5 +43,28 @@ class MediaService:
             content_type=processed.content_type,
         )
 
+    async def replace_image(
+        self,
+        *,
+        content: bytes,
+        storage_key: str,
+        media_id: UUID,
+        spec: ImageSpec,
+    ) -> MediaObject:
+        processed = self.image_processor.process(content, spec)
+
+        await self.storage.put(
+            storage_key=storage_key,
+            content=processed.content,
+            content_type=processed.content_type,
+        )
+
+        return MediaObject(
+            id=media_id,
+            storage_key=storage_key,
+            url=self.storage.get_url(storage_key=storage_key),
+            content_type=processed.content_type,
+        )
+
     async def delete_image(self, *, storage_key: str) -> None:
         await self.storage.delete(storage_key=storage_key)

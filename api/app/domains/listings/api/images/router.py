@@ -22,7 +22,7 @@ async def create_listing_image(
 
     return await service.add_image(
         listing_id=listing_id,
-        image_position=position,
+        position=position,
         content=content,
     )
 
@@ -33,6 +33,24 @@ async def list_listing_images(
     service: ListingServiceDep,
 ):
     return await service.list_images(listing_id=listing_id)
+
+
+@router.patch("/{image_id}", response_model=ListingImageResponse)
+async def update_listing_image(
+    listing_id: UUID,
+    image_id: UUID,
+    service: ListingServiceDep,
+    file: Annotated[UploadFile | None, File()] = None,
+    position: Annotated[int | None, Form(gt=0, le=10)] = None,
+):
+    content = await file.read() if file is not None else None
+
+    return await service.update_image(
+        listing_id=listing_id,
+        image_id=image_id,
+        content=content,
+        position=position,
+    )
 
 
 @router.delete("/{image_id}", status_code=status.HTTP_204_NO_CONTENT)
