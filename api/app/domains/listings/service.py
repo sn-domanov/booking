@@ -105,7 +105,7 @@ class ListingService:
         self,
         *,
         listing_id: UUID,
-        image_position: int,
+        position: int,
         content: bytes,
     ) -> ListingImageResult:
         async with self.uow.transaction():
@@ -124,7 +124,7 @@ class ListingService:
             image = await self.uow.listing_images.create(
                 image_id=image_id,
                 listing_id=listing_id,
-                position=image_position,
+                position=position,
                 storage_key=media.storage_key,
                 content_type=media.content_type,
             )
@@ -155,6 +155,55 @@ class ListingService:
             for image in images
         ]
 
+    async def update_image(
+        self,
+        *,
+        listing_id: UUID,
+        image_id: UUID,
+        content: bytes | None,
+        position: int | None,
+    ) -> ListingImageResult:
+        if content is None and position is None:
+            raise ValidationError("At least one field must be provided")
+
+        async with self.uow.transaction():
+            image = await self.uow.listing_images.get(
+                listing_id=listing_id,
+                image_id=image_id,
+            )
+
+            if image is None:
+                raise NotFoundError(f"Listing image with ID {image_id} not found")
+
+            media = None
+
+            if content is not None:
+                media = await self.media_service.replace_image(
+                    content=content,
+                    storage_key=image.storage_key,
+                    media_id=image.id,
+                    spec=LISTING_IMAGE_SPEC,
+                )
+
+                image.storage_key = media.storage_key
+                image.content_type = media.content_type
+
+            if position is not None:
+                image.position = position
+
+        return ListingImageResult(
+            id=image.id,
+            url=media.url
+            if media
+            else self.media_service.get_url(
+                storage_key=image.storage_key,
+            ),
+            content_type=image.content_type,
+            position=image.position,
+            created_at=image.created_at,
+            updated_at=image.updated_at,
+        )
+
     async def delete_image(
         self,
         *,
@@ -169,7 +218,7 @@ class ListingService:
             )
 
             if image is None:
-                raise NotFoundError("Listing image not found")
+                raise NotFoundError(f"Listing image with ID {image_id} not found")
 
             await self.uow.listing_images.delete(image=image)
 
