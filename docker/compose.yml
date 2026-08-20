@@ -1,23 +1,25 @@
 name: ${COMPOSE_PROJECT_NAME}
 
+x-api-environment: &api-environment
+  SECRET_KEY: ${SECRET_KEY}
+  DB__HOST: db
+  DB__PORT: 5432
+  DB__NAME: ${POSTGRES_DB}
+  DB__USER: ${POSTGRES_USER}
+  DB__PASSWORD: ${POSTGRES_PASSWORD}
+  S3__ACCESS_KEY: ${S3_ACCESS_KEY}
+  S3__SECRET_KEY: ${S3_SECRET_KEY}
+  S3__ENDPOINT_URL: ${S3_ENDPOINT_URL}
+  S3__PUBLIC_BASE_URL: ${S3_PUBLIC_BASE_URL}
+  S3__REGION: ${S3_REGION}
+  S3__BUCKET: ${S3_BUCKET}
+
 services:
   api:
     build:
       context: ../api
       target: runtime
-    environment:
-      SECRET_KEY: ${SECRET_KEY}
-      DB__HOST: db
-      DB__PORT: 5432
-      DB__NAME: ${POSTGRES_DB}
-      DB__USER: ${POSTGRES_USER}
-      DB__PASSWORD: ${POSTGRES_PASSWORD}
-      S3__ACCESS_KEY: ${S3_ACCESS_KEY}
-      S3__SECRET_KEY: ${S3_SECRET_KEY}
-      S3__ENDPOINT_URL: ${S3_ENDPOINT_URL}
-      S3__PUBLIC_BASE_URL: ${S3_PUBLIC_BASE_URL}
-      S3__REGION: ${S3_REGION}
-      S3__BUCKET: ${S3_BUCKET}
+    environment: *api-environment
     healthcheck:
       test:
         - CMD
@@ -30,7 +32,19 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      api-migrate:
+        condition: service_completed_successfully
       s3:
+        condition: service_healthy
+
+  api-migrate:
+    build:
+      context: ../api
+      target: runtime
+    command: ["alembic", "upgrade", "head"]
+    environment: *api-environment
+    depends_on:
+      db:
         condition: service_healthy
     
   db:
