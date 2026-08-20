@@ -25,6 +25,10 @@ services:
       s3-init:
         condition: service_completed_successfully
 
+  api-migrate:
+    environment:
+      APP_ENV: development
+
   db:
     ports:
       - "127.0.0.1:5432:5432"

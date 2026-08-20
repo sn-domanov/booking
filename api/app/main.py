@@ -6,7 +6,6 @@ from app.api.exception_handlers import application_exception_handler
 from app.api.router import api_v1_router
 from app.core.config import get_settings
 from app.core.exceptions import ApplicationError
-from app.db import init_db
 from app.db.session import engine
 from app.health.router import router as health_router
 
@@ -14,9 +13,13 @@ settings = get_settings()
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
-    await init_db(engine)
+async def lifespan(_: FastAPI):
+    # Startup event
+
     yield
+
+    # Shutdown event
+    await engine.dispose()
 
 
 def create_app() -> FastAPI:
