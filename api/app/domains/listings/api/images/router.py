@@ -5,6 +5,7 @@ from fastapi import APIRouter, File, Form, UploadFile, status
 
 from app.api.deps.listings import ListingServiceDep
 from app.domains.listings.api.images.schemas import ListingImageResponse
+from app.domains.listings.dto import ListingImageResult
 
 router = APIRouter(prefix="/{listing_id}/images")
 
@@ -17,7 +18,7 @@ async def create_listing_image(
     service: ListingServiceDep,
     file: Annotated[UploadFile, File()],
     position: Annotated[int, Form(gt=0, le=10)],
-):
+) -> ListingImageResult:
     content = await file.read()
 
     return await service.add_image(
@@ -31,7 +32,7 @@ async def create_listing_image(
 async def list_listing_images(
     listing_id: UUID,
     service: ListingServiceDep,
-):
+) -> list[ListingImageResult]:
     return await service.list_images(listing_id=listing_id)
 
 
@@ -42,7 +43,7 @@ async def update_listing_image(
     service: ListingServiceDep,
     file: Annotated[UploadFile | None, File()] = None,
     position: Annotated[int | None, Form(gt=0, le=10)] = None,
-):
+) -> ListingImageResult:
     content = await file.read() if file is not None else None
 
     return await service.update_image(

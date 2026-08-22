@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
+from decimal import Decimal
 from uuid import UUID
 
 
@@ -11,3 +12,15 @@ class ListingImageResult:
     position: int
     created_at: datetime
     updated_at: datetime
+
+
+@dataclass(frozen=True, slots=True)
+class ListingResult:
+    id: UUID
+    name: str
+    description: str
+    price_per_night: Decimal
+    max_guests: int
+    created_at: datetime
+    updated_at: datetime
+    images: list[ListingImageResult]

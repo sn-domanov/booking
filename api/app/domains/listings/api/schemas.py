@@ -2,6 +2,7 @@ from datetime import datetime
 from uuid import UUID
 
 from app.api.schemas import ApiSchema
+from app.domains.listings.api.images.schemas import ListingImageResponse
 from app.domains.listings.api.types import (
     ListingDescription,
     ListingName,
@@ -39,3 +40,5 @@ class ListingResponse(ApiSchema):
     max_guests: MaxGuests
     created_at: datetime
     updated_at: datetime
+
+    images: list[ListingImageResponse]
