@@ -1,7 +1,12 @@
 from uuid import UUID, uuid7
 
 from app.core.exceptions import NotFoundError, ValidationError
-from app.core.pagination import OffsetPage, OffsetPagination
+from app.core.pagination import (
+    CursorPage,
+    CursorPagination,
+    OffsetPage,
+    OffsetPagination,
+)
 from app.db.uow import UnitOfWork
 from app.domains.listings.api.schemas import (
     ListingCreate,
@@ -43,18 +48,30 @@ class ListingService:
 
             return self._to_listing_result(listing)
 
-    async def list_listings(
+    async def list_listings_offset(
         self,
         *,
         pagination: OffsetPagination,
     ) -> OffsetPage[ListingResult]:
-        page = await self.uow.listings.list(pagination=pagination)
+        page = await self.uow.listings.list_offset(pagination=pagination)
 
         # Rebuilding the same OffsetPage from DTO instead of ORM
         return OffsetPage(
             items=[self._to_listing_result(listing) for listing in page.items],
             has_next=page.has_next,
             total=page.total,
+        )
+
+    async def list_listings_cursor(
+        self,
+        *,
+        pagination: CursorPagination,
+    ) -> CursorPage[ListingResult]:
+        page = await self.uow.listings.list_cursor(pagination=pagination)
+
+        return CursorPage(
+            items=[self._to_listing_result(listing) for listing in page.items],
+            next_cursor=page.next_cursor,
         )
 
     async def get_listing(self, *, listing_id: UUID) -> ListingResult:

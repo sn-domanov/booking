@@ -4,8 +4,17 @@ from uuid import UUID
 from fastapi import APIRouter, Query, status
 
 from app.api.deps.listings import ListingServiceDep
-from app.api.schemas import OffsetPageResponse, OffsetPaginationQuery
-from app.core.pagination import OffsetPage, OffsetPagination
+from app.api.schemas import (
+    CursorPageResponse,
+    OffsetPageResponse,
+    PaginationQuery,
+)
+from app.core.pagination import (
+    CursorPage,
+    CursorPagination,
+    OffsetPage,
+    OffsetPagination,
+)
 from app.domains.listings.api.images.router import router as images_router
 from app.domains.listings.api.schemas import (
     ListingCreate,
@@ -34,17 +43,27 @@ async def create_listing(
 
 @router.get(
     "",
-    response_model=OffsetPageResponse[ListingResponse],
+    response_model=(
+        OffsetPageResponse[ListingResponse] | CursorPageResponse[ListingResponse]
+    ),
 )
 async def list_listings(
-    pagination: Annotated[OffsetPaginationQuery, Query()],
+    pagination: Annotated[PaginationQuery, Query()],
     service: ListingServiceDep,
-) -> OffsetPage[ListingResult]:
-    return await service.list_listings(
+) -> OffsetPage[ListingResult] | CursorPage[ListingResult]:
+    if pagination.pagination == "cursor":
+        return await service.list_listings_cursor(
+            pagination=CursorPagination(
+                limit=pagination.limit,
+                cursor=pagination.cursor,
+            ),
+        )
+
+    return await service.list_listings_offset(
         pagination=OffsetPagination(
             limit=pagination.limit,
-            offset=pagination.offset,
-        )
+            offset=pagination.offset or 0,
+        ),
     )
 
 

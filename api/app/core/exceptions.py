@@ -52,3 +52,7 @@ class ImageDimensionError(ImageProcessingError):
 
 class InvalidStorageKey(StorageError):
     code = "invalid_storage_key"
+
+
+class InvalidCursorError(ApplicationError):
+    code = "invalid_cursor"
