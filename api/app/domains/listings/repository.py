@@ -45,7 +45,11 @@ class ListingRepository:
         )
 
     async def get(self, *, listing_id: UUID) -> Listing | None:
-        stmt = select(Listing).where(Listing.id == listing_id)
+        stmt = (
+            select(Listing)
+            .where(Listing.id == listing_id)
+            .options(selectinload(Listing.images))
+        )
         result = await self.session.execute(stmt)
 
         return result.scalar_one_or_none()
