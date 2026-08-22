@@ -1,8 +1,10 @@
 from collections.abc import Sequence
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import func, select
+from sqlalchemy.orm import selectinload
 
+from app.core.pagination import OffsetPage, OffsetPagination
 from app.db.session import AsyncSession
 from app.domains.listings.models import Listing, ListingImage
 
@@ -14,12 +16,33 @@ class ListingRepository:
     def add(self, *, listing: Listing) -> None:
         self.session.add(listing)
 
-    # TODO add pagination
-    async def list(self) -> Sequence[Listing]:
-        stmt = select(Listing).order_by(Listing.created_at.desc(), Listing.id.desc())
-        result = await self.session.scalars(stmt)
+    async def list(self, *, pagination: OffsetPagination) -> OffsetPage[Listing]:
+        filters = ()
 
-        return result.all()
+        stmt = (
+            select(Listing)
+            .where(*filters)
+            .options(selectinload(Listing.images))
+            .order_by(
+                Listing.created_at.desc(),
+                Listing.id.desc(),
+            )
+            .offset(pagination.offset)
+            .limit(pagination.limit + 1)
+        )
+
+        count_stmt = select(func.count()).select_from(Listing).where(*filters)
+
+        result = await self.session.scalars(stmt)
+        rows = list(result.all())
+
+        total = (await self.session.execute(count_stmt)).scalar_one()
+
+        return OffsetPage(
+            items=rows[: pagination.limit],
+            has_next=len(rows) > pagination.limit,
+            total=total,
+        )
 
     async def get(self, *, listing_id: UUID) -> Listing | None:
         stmt = select(Listing).where(Listing.id == listing_id)
