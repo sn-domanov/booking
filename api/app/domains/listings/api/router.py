@@ -1,8 +1,11 @@
+from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, status
+from fastapi import APIRouter, Query, status
 
 from app.api.deps.listings import ListingServiceDep
+from app.api.schemas import OffsetPageResponse, OffsetPaginationQuery
+from app.core.pagination import OffsetPage, OffsetPagination
 from app.domains.listings.api.images.router import router as images_router
 from app.domains.listings.api.schemas import (
     ListingCreate,
@@ -10,6 +13,7 @@ from app.domains.listings.api.schemas import (
     ListingResponse,
     ListingUpdate,
 )
+from app.domains.listings.dto import ListingResult
 
 router = APIRouter(prefix="/listings", tags=["listings"])
 
@@ -22,7 +26,7 @@ router = APIRouter(prefix="/listings", tags=["listings"])
 async def create_listing(
     data: ListingCreate,
     service: ListingServiceDep,
-):
+) -> ListingResult:
     listing = await service.create_listing(data=data)
 
     return listing
@@ -30,14 +34,18 @@ async def create_listing(
 
 @router.get(
     "",
-    response_model=list[ListingResponse],
+    response_model=OffsetPageResponse[ListingResponse],
 )
 async def list_listings(
+    pagination: Annotated[OffsetPaginationQuery, Query()],
     service: ListingServiceDep,
-):
-    listings = await service.list_listings()
-
-    return listings
+) -> OffsetPage[ListingResult]:
+    return await service.list_listings(
+        pagination=OffsetPagination(
+            limit=pagination.limit,
+            offset=pagination.offset,
+        )
+    )
 
 
 @router.get(
@@ -47,7 +55,7 @@ async def list_listings(
 async def get_listing(
     listing_id: UUID,
     service: ListingServiceDep,
-):
+) -> ListingResult:
     listing = await service.get_listing(listing_id=listing_id)
 
     return listing
@@ -61,7 +69,7 @@ async def update_listing(
     listing_id: UUID,
     data: ListingUpdate,
     service: ListingServiceDep,
-):
+) -> ListingResult:
     listing = await service.update_listing(
         listing_id=listing_id,
         data=data,
@@ -78,7 +86,7 @@ async def replace_listing(
     listing_id: UUID,
     data: ListingReplace,
     service: ListingServiceDep,
-):
+) -> ListingResult:
     listing = await service.replace_listing(
         listing_id=listing_id,
         data=data,
