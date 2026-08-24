@@ -2,7 +2,6 @@
 name = "booking-api"
 version = "0.1.0"
 description = "Backend API for the booking application"
-readme = "../README.md"
 requires-python = ">=3.14"
 
 dependencies = [
@@ -21,7 +20,14 @@ dev = [
     "pytest-asyncio>=1.4.0",
     "pytest-env>=1.7.0",
     "ruff>=0.16.2",
+    "typer>=0.27.1",
 ]
+
+[project.scripts]
+booking = "app.cli.main:app"
+
+[tool.uv]
+package = true
 
 [tool.fastapi]
 entrypoint = "app.main:app"
