@@ -1,7 +1,14 @@
+from collections.abc import Sequence
 from typing import Protocol
 
 
 class ObjectStorage(Protocol):
+    def get_url(
+        self,
+        *,
+        storage_key: str,
+    ) -> str: ...
+
     async def put(
         self,
         *,
@@ -16,8 +23,14 @@ class ObjectStorage(Protocol):
         storage_key: str,
     ) -> None: ...
 
-    def get_url(
+    async def delete_many(
         self,
         *,
-        storage_key: str,
-    ) -> str: ...
+        storage_keys: Sequence[str],
+    ) -> None: ...
+
+    async def clear(
+        self,
+        *,
+        prefix: str | None = None,
+    ) -> None: ...

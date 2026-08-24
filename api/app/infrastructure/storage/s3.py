@@ -1,3 +1,5 @@
+from collections.abc import Sequence
+
 import boto3
 from fastapi.concurrency import run_in_threadpool
 
@@ -19,6 +21,14 @@ class S3ObjectStorage:
         )
         self.bucket = settings.bucket
         self.public_base_url = settings.public_base_url.rstrip("/")
+
+    def get_url(
+        self,
+        *,
+        storage_key: str,
+    ) -> str:
+        # TODO: consider virtual-hosted style http://{bucket}.localhost:9000/{key}
+        return f"{self.public_base_url}/{self.bucket}/{storage_key}"
 
     async def put(
         self,
@@ -46,10 +56,42 @@ class S3ObjectStorage:
             Key=storage_key,
         )
 
-    def get_url(
+    async def delete_many(
         self,
         *,
-        storage_key: str,
-    ) -> str:
-        # TODO: consider virtual-hosted style http://{bucket}.localhost:9000/{key}
-        return f"{self.public_base_url}/{self.bucket}/{storage_key}"
+        storage_keys: Sequence[str],
+    ) -> None:
+        if not storage_keys:
+            return
+
+        await run_in_threadpool(
+            self.client.delete_objects,
+            Bucket=self.bucket,
+            Delete={
+                "Objects": [{"Key": storage_key} for storage_key in storage_keys],
+            },
+        )
+
+    async def clear(
+        self,
+        *,
+        prefix: str | None = None,
+    ) -> None:
+        def _clear() -> None:
+            paginator = self.client.get_paginator("list_objects_v2")
+
+            for page in paginator.paginate(
+                Bucket=self.bucket,
+                **({"Prefix": prefix} if prefix else {}),
+            ):
+                keys = [obj["Key"] for obj in page.get("Contents", [])]
+
+                if keys:
+                    self.client.delete_objects(
+                        Bucket=self.bucket,
+                        Delete={
+                            "Objects": [{"Key": key} for key in keys],
+                        },
+                    )
+
+        await run_in_threadpool(_clear)
