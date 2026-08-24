@@ -2,8 +2,12 @@ from io import BytesIO
 from pathlib import Path
 
 import httpx
+from sqlalchemy import delete
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domains.listings.api.schemas import ListingResponse
+from app.domains.listings.models import Listing
+from app.infrastructure.storage.protocol import ObjectStorage
 
 from .data import LISTINGS
 
@@ -44,3 +48,14 @@ async def seed_listings(
             response.raise_for_status()
 
     return listings
+
+
+async def clear_listing_data(
+    session: AsyncSession,
+    storage: ObjectStorage,
+) -> None:
+    await session.execute(delete(Listing))
+
+    await session.commit()
+
+    await storage.clear(prefix="listings/")

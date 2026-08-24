@@ -6,7 +6,7 @@ app = typer.Typer()
 
 
 # N.B. with one command, Typer treats it as the main CLI
-#  adding a callback tells Typer to keep it as a subcommand
+# adding a callback tells Typer to keep it as a subcommand
 # https://typer.tiangolo.com/tutorial/commands/one-or-multiple/#one-command-and-one-callback
 @app.callback()
 def callback() -> None:
