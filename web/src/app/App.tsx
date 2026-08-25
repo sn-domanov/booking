@@ -1,5 +1,6 @@
-import { checkHealth } from "@/shared/api/health";
 import { useEffect } from "react";
+
+import { checkHealth } from "@/shared/api/health";
 
 function App() {
   useEffect(() => {
