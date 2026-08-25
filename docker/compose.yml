@@ -13,6 +13,7 @@ x-api-environment: &api-environment
   S3__PUBLIC_BASE_URL: ${S3_PUBLIC_BASE_URL}
   S3__REGION: ${S3_REGION}
   S3__BUCKET: ${S3_BUCKET}
+  CORS_ORIGINS: ${CORS_ORIGINS}
 
 services:
   api:
