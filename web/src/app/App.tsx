@@ -1,13 +1,7 @@
-import { useEffect } from "react";
-
-import { checkHealth } from "@/shared/api/health";
+import AppRouter from "./router";
 
 function App() {
-  useEffect(() => {
-    checkHealth().then(console.log).catch(console.error);
-  }, []);
-
-  return <h1>Welcome to Booking!</h1>;
+  return <AppRouter />;
 }
 
 export default App;
