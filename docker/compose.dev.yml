@@ -5,12 +5,12 @@ services:
     environment:
       APP_ENV: development
       DB_ECHO: true
-    command: 
-      - fastapi 
-      - dev 
-      - --host 
-      - 0.0.0.0 
-      - --port 
+    command:
+      - fastapi
+      - dev
+      - --host
+      - 0.0.0.0
+      - --port
       - "8000"
     volumes:
       # `:Z` - private SELinux label, `:z` - global
@@ -63,17 +63,16 @@ services:
   web:
     environment:
       # TODO pass as build arguments when building JS bundle
-      VITE_API_URL: ${VITE_API_URL}
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL}
     command:
       - npm
-      - run 
-      - dev 
-      - -- 
-      - --host 
+      - run
+      - dev
+      - --
+      - --host
       - 0.0.0.0
     volumes:
       - ../:/app:z
     working_dir: /app/web
     ports:
       - "127.0.0.1:5173:5173"
-    
