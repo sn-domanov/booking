@@ -76,6 +76,9 @@ class Settings(BaseSettings):
     max_image_dimension: int = 10_000
     max_image_pixels: int = 20_000_000
 
+    # SPA
+    cors_origins: list[str]
+
 
 @lru_cache
 def get_settings() -> Settings:
