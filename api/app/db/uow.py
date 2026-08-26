@@ -1,9 +1,16 @@
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
+from sqlalchemy.exc import DBAPIError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.db.exceptions import raise_from_database_error
+from app.domains.listings.constraints import CONSTRAINT_MAP as LISTINGS_CONSTRAINT_MAP
 from app.domains.listings.repository import ListingImageRepository, ListingRepository
+
+DATABASE_CONSTRAINT_MAP = {
+    **LISTINGS_CONSTRAINT_MAP,
+}
 
 
 class UnitOfWork:
@@ -22,8 +29,16 @@ class UnitOfWork:
     async def transaction(self) -> AsyncGenerator[UnitOfWork]:
         try:
             yield self
-            # TODO translate database errors
             await self.commit()
+
+        except DBAPIError as exc:
+            await self.rollback()
+
+            raise_from_database_error(
+                exc,
+                DATABASE_CONSTRAINT_MAP,
+            )
+
         except Exception:
             await self.rollback()
             raise
