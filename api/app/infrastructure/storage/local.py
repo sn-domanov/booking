@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from app.core.config import Settings
-from app.core.exceptions import InvalidStorageKey
+from app.core.exceptions import InvalidStorageKeyError
 
 
 class LocalObjectStorage:
@@ -47,6 +47,6 @@ class LocalObjectStorage:
         filepath = (root / storage_key).resolve()
 
         if not filepath.is_relative_to(root):
-            raise InvalidStorageKey("Invalid storage key")
+            raise InvalidStorageKeyError("Invalid storage key")
 
         return filepath

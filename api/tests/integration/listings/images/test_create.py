@@ -60,6 +60,39 @@ async def test_listing_image_create_success(
 
 
 # ─────────────────────────────────────────
+# 409 Conflict
+# ─────────────────────────────────────────
+
+
+async def test_create_listing_image_rejects_duplicate_position(
+    client: AsyncClient,
+    uow: UnitOfWork,
+) -> None:
+    listing = await create_listing(uow)
+
+    await client.post(
+        f"/api/v1/listings/{listing.id}/images",
+        files=image_upload(),
+        data={"position": "1"},
+    )
+
+    response = await client.post(
+        f"/api/v1/listings/{listing.id}/images",
+        files=image_upload(),
+        data={"position": "1"},
+    )
+
+    assert response.status_code == 409
+
+    data = response.json()
+
+    assert data["code"] == "conflict"
+    assert data["conflict"] == "listing_image_position"
+    assert "exists" in data["detail"].lower()
+    assert "position" in data["detail"].lower()
+
+
+# ─────────────────────────────────────────
 # 422 Application Validation
 # ─────────────────────────────────────────
 

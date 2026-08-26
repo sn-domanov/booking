@@ -34,6 +34,27 @@ class NotFoundError(ApplicationError):
     code = "not_found"
 
 
+class ConflictError(ApplicationError):
+    code = "conflict"
+
+    def __init__(
+        self,
+        detail: str,
+        *,
+        conflict: str | None = None,
+    ) -> None:
+        self.conflict = conflict
+        super().__init__(detail)
+
+    def to_dict(self) -> dict[str, str]:
+        body = super().to_dict()
+
+        if self.conflict is not None:
+            body["conflict"] = self.conflict
+
+        return body
+
+
 class ValidationError(ApplicationError):
     code = "validation_error"
 
@@ -50,7 +71,7 @@ class ImageDimensionError(ImageProcessingError):
     code = "image_dimensions_too_large"
 
 
-class InvalidStorageKey(StorageError):
+class InvalidStorageKeyError(StorageError):
     code = "invalid_storage_key"
 
 
