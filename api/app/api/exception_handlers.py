@@ -8,7 +8,7 @@ from app.core.exceptions import (
     ImageTooLargeError,
     InvalidCursorError,
     InvalidImageError,
-    InvalidStorageKey,
+    InvalidStorageKeyError,
     NotFoundError,
     StorageError,
     ValidationError,
@@ -28,7 +28,7 @@ async def application_exception_handler(
     DEFAULT_STATUS_CODE_MAP = {
         ImageProcessingError: 400,
         InvalidCursorError: 400,
-        InvalidStorageKey: 400,
+        InvalidStorageKeyError: 400,
         NotFoundError: 404,
         ImageTooLargeError: 413,
         ValidationError: 422,

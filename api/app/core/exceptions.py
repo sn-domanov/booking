@@ -50,7 +50,7 @@ class ImageDimensionError(ImageProcessingError):
     code = "image_dimensions_too_large"
 
 
-class InvalidStorageKey(StorageError):
+class InvalidStorageKeyError(StorageError):
     code = "invalid_storage_key"
 
 
