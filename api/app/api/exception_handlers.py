@@ -3,6 +3,7 @@ from fastapi.responses import JSONResponse
 
 from app.core.exceptions import (
     ApplicationError,
+    ConflictError,
     ImageDimensionError,
     ImageProcessingError,
     ImageTooLargeError,
@@ -14,6 +15,20 @@ from app.core.exceptions import (
     ValidationError,
 )
 
+DEFAULT_STATUS_CODE_MAP = {
+    ImageProcessingError: 400,
+    InvalidCursorError: 400,
+    InvalidStorageKeyError: 400,
+    NotFoundError: 404,
+    ConflictError: 409,
+    ImageTooLargeError: 413,
+    ValidationError: 422,
+    ImageDimensionError: 413,
+    InvalidImageError: 422,
+    ApplicationError: 500,
+    StorageError: 500,
+}
+
 
 async def application_exception_handler(
     request: Request,
@@ -24,19 +39,6 @@ async def application_exception_handler(
     # add_exception_handler's `exc_class_or_status_code: int | type[Exception]`
     if not isinstance(exc, ApplicationError):
         raise TypeError("application_exception_handler received non-ApplicationError")
-
-    DEFAULT_STATUS_CODE_MAP = {
-        ImageProcessingError: 400,
-        InvalidCursorError: 400,
-        InvalidStorageKeyError: 400,
-        NotFoundError: 404,
-        ImageTooLargeError: 413,
-        ValidationError: 422,
-        ImageDimensionError: 413,
-        InvalidImageError: 422,
-        ApplicationError: 500,
-        StorageError: 500,
-    }
 
     # Most specific exception wins, else Internal Server Error
     for exc_type in type(exc).__mro__:
