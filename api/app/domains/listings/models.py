@@ -35,6 +35,11 @@ class Listing(TimestampMixin, Base):
         primary_key=True,
         default=uuid7,
     )
+    slug: Mapped[str] = mapped_column(
+        String(80),
+        nullable=False,
+        unique=True,
+    )
     name: Mapped[str] = mapped_column(
         String(255),
         nullable=False,

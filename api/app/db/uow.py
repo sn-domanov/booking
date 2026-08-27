@@ -37,6 +37,7 @@ class UnitOfWork:
         except DBAPIError as exc:
             await self.rollback()
 
+            # Translate to an application exception for the global API handler
             raise_from_database_error(
                 exc,
                 DATABASE_CONSTRAINT_MAP,
@@ -45,3 +46,16 @@ class UnitOfWork:
         except Exception:
             await self.rollback()
             raise
+
+    @asynccontextmanager
+    async def savepoint(self) -> AsyncGenerator[None]:
+        try:
+            async with self.session.begin_nested():
+                yield
+
+        except DBAPIError as exc:
+            # Translate to an application exception so the service can handle it
+            raise_from_database_error(
+                exc,
+                DATABASE_CONSTRAINT_MAP,
+            )

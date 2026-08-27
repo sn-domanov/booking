@@ -162,10 +162,10 @@ LISTINGS = [
         ],
     },
     {
-        "name": "Private Beach House",
-        "description": "A relaxed beach house with direct access to the shoreline, spacious living areas, and a large outdoor terrace.",
-        "price_per_night": 275,
-        "max_guests": 8,
+        "name": "Quiet City Retreat",
+        "description": "A peaceful city retreat with modern comforts, cozy interiors, and everything you need for a relaxing urban stay.",
+        "price_per_night": 150,
+        "max_guests": 4,
         "images": [
             "coming_soon.webp",
             "coming_soon.webp",
