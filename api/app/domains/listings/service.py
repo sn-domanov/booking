@@ -1,12 +1,13 @@
 from uuid import UUID, uuid7
 
-from app.core.exceptions import NotFoundError, ValidationError
+from app.core.exceptions import ConflictError, NotFoundError, ValidationError
 from app.core.pagination import (
     CursorPage,
     CursorPagination,
     OffsetPage,
     OffsetPagination,
 )
+from app.core.slug import make_slug
 from app.db.uow import UnitOfWork
 from app.domains.listings.api.schemas import (
     ListingCreate,
@@ -34,17 +35,31 @@ class ListingService:
 
     async def create_listing(self, *, data: ListingCreate) -> ListingResult:
         async with self.uow.transaction():
-            listing = Listing(
-                name=data.name,
-                description=data.description,
-                price_per_night=data.price_per_night,
-                max_guests=data.max_guests,
-                images=[],
-            )
+            suffix = None
 
-            self.uow.listings.add(listing=listing)
+            while True:
+                slug = make_slug(data.name, suffix)
 
-            await self.uow.session.flush()
+                try:
+                    listing = Listing(
+                        slug=slug,
+                        name=data.name,
+                        description=data.description,
+                        price_per_night=data.price_per_night,
+                        max_guests=data.max_guests,
+                        images=[],
+                    )
+
+                    self.uow.listings.add(listing=listing)
+                    await self.uow.session.flush()
+                    break
+
+                # TODO: consider refactoring exceptions
+                except ConflictError as exc:
+                    if exc.conflict != "listings_slug":
+                        raise
+
+                    suffix = 1 if suffix is None else suffix + 1
 
             return self._to_listing_result(listing)
 
@@ -257,6 +272,7 @@ class ListingService:
     def _to_listing_result(self, listing: Listing) -> ListingResult:
         return ListingResult(
             id=listing.id,
+            slug=listing.slug,
             name=listing.name,
             description=listing.description,
             price_per_night=listing.price_per_night,

@@ -17,6 +17,7 @@ class ListingImageResult:
 @dataclass(frozen=True, slots=True)
 class ListingResult:
     id: UUID
+    slug: str
     name: str
     description: str
     price_per_night: Decimal
