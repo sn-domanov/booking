@@ -70,7 +70,9 @@ async def test_listings_list_return_created(
     uow: UnitOfWork,
     pagination: str,
 ) -> None:
-    listings = [await create_listing(uow) for _ in range(5)]
+    listings = [
+        await create_listing(uow, name="Test", slug=f"test-{i}") for i in range(5)
+    ]
 
     response = await client.get(
         "/api/v1/listings",
@@ -174,7 +176,7 @@ async def test_listings_list_response_shape(
     uow: UnitOfWork,
     pagination: str,
 ) -> None:
-    [await create_listing(uow) for _ in range(5)]
+    [await create_listing(uow, name="Test", slug=f"test-{i}") for i in range(5)]
 
     response = await client.get(
         "/api/v1/listings",
@@ -206,7 +208,7 @@ async def test_listings_list_offset_pagination(
     expected_count,
     has_next,
 ) -> None:
-    [await create_listing(uow) for _ in range(5)]
+    [await create_listing(uow, name="Test", slug=f"test-{i}") for i in range(5)]
 
     response = await client.get(
         f"/api/v1/listings?limit={limit}&offset={offset}",
@@ -225,8 +227,12 @@ async def test_listings_list_cursor_pagination(
     client: AsyncClient,
     uow: UnitOfWork,
 ) -> None:
-    for _ in range(5):
-        await create_listing(uow)
+    for i in range(5):
+        await create_listing(
+            uow,
+            name="Test",
+            slug=f"test-{i}",
+        )
 
     response = await client.get(
         "/api/v1/listings",

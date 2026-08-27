@@ -3,6 +3,9 @@ import uuid
 import pytest
 from httpx import AsyncClient
 
+from app.db.uow import UnitOfWork
+from tests.helpers.listings import create_listing
+
 # ─────────────────────────────────────────
 # POST /api/v1/listings
 # ─────────────────────────────────────────
@@ -33,6 +36,7 @@ async def test_listing_create_success(client: AsyncClient) -> None:
     assert data["id"] is not None
     uuid.UUID(data["id"])
 
+    assert data["slug"] is not None
     assert data["createdAt"] is not None
     assert data["updatedAt"] is not None
 
@@ -69,6 +73,31 @@ async def test_listing_create_normalization(
     data = response.json()
 
     assert data[field] == expected
+
+
+async def test_create_generates_slug(
+    client: AsyncClient,
+    uow: UnitOfWork,
+) -> None:
+    await create_listing(uow, name="Quiet City Retreat")
+
+    payload = {
+        "name": "Quiet City Retreat",
+        "description": "A peaceful city retreat.",
+        "price_per_night": "100.00",
+        "max_guests": 2,
+    }
+
+    response = await client.post(
+        "/api/v1/listings",
+        json=payload,
+    )
+
+    assert response.status_code == 201
+
+    data = response.json()
+
+    assert data["slug"] == "quiet-city-retreat-2"
 
 
 # ─────────────────────────────────────────
