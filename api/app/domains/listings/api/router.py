@@ -68,6 +68,19 @@ async def list_listings(
 
 
 @router.get(
+    "/by-slug/{slug}",
+    response_model=ListingResponse,
+)
+async def get_listing_by_slug(
+    slug: str,
+    service: ListingServiceDep,
+) -> ListingResult:
+    listing = await service.get_listing_by_slug(slug=slug)
+
+    return listing
+
+
+@router.get(
     "/{listing_id}",
     response_model=ListingResponse,
 )

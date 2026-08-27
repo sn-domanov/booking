@@ -111,5 +111,15 @@ class ListingRepository:
 
         return result.scalar_one_or_none()
 
+    async def get_by_slug(self, *, slug: str) -> Listing | None:
+        stmt = (
+            select(Listing)
+            .where(Listing.slug == slug)
+            .options(selectinload(Listing.images))
+        )
+        result = await self.session.execute(stmt)
+
+        return result.scalar_one_or_none()
+
     async def delete(self, *, listing: Listing) -> None:
         await self.session.delete(listing)

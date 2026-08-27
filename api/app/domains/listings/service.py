@@ -97,6 +97,11 @@ class ListingService:
 
         return self._to_listing_result(listing)
 
+    async def get_listing_by_slug(self, *, slug: str) -> ListingResult:
+        listing = await self._get_listing_by_slug(slug)
+
+        return self._to_listing_result(listing)
+
     async def update_listing(
         self,
         *,
@@ -241,6 +246,14 @@ class ListingService:
 
         if listing is None:
             raise NotFoundError(f"Listing with ID {listing_id} not found")
+
+        return listing
+
+    async def _get_listing_by_slug(self, slug: str) -> Listing:
+        listing = await self.uow.listings.get_by_slug(slug=slug)
+
+        if listing is None:
+            raise NotFoundError(f"Listing with slug {slug} not found")
 
         return listing
 
