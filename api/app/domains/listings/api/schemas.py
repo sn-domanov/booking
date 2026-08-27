@@ -34,6 +34,7 @@ class ListingReplace(ApiSchema):
 
 class ListingResponse(ApiSchema):
     id: UUID
+    slug: str
     name: ListingName
     description: ListingDescription
     price_per_night: PricePerNight
