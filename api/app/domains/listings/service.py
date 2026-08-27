@@ -40,19 +40,19 @@ class ListingService:
             while True:
                 slug = make_slug(data.name, suffix)
 
-                try:
-                    listing = Listing(
-                        slug=slug,
-                        name=data.name,
-                        description=data.description,
-                        price_per_night=data.price_per_night,
-                        max_guests=data.max_guests,
-                        images=[],
-                    )
+                listing = Listing(
+                    slug=slug,
+                    name=data.name,
+                    description=data.description,
+                    price_per_night=data.price_per_night,
+                    max_guests=data.max_guests,
+                    images=[],
+                )
 
-                    self.uow.listings.add(listing=listing)
-                    await self.uow.session.flush()
-                    break
+                try:
+                    async with self.uow.savepoint():
+                        self.uow.listings.add(listing=listing)
+                        await self.uow.session.flush()
 
                 # TODO: consider refactoring exceptions
                 except ConflictError as exc:
@@ -60,6 +60,9 @@ class ListingService:
                         raise
 
                     suffix = 1 if suffix is None else suffix + 1
+
+                else:
+                    break
 
             return self._to_listing_result(listing)
 
