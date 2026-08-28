@@ -1,8 +1,12 @@
+import ListingListContainer from "@/entities/listing/ui/ListingListContainer";
+
 function HomePage() {
   return (
-    <>
-      <h1>Home page</h1>
-    </>
+    <section className="page py-8 space-y-4">
+      <h1>Welcome to Booking!</h1>
+
+      <ListingListContainer />
+    </section>
   );
 }
 
