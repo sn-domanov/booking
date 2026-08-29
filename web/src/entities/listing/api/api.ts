@@ -1,13 +1,14 @@
-import { apiClient } from "@/shared/api/client";
 import {
   type CursorPage,
   cursorPageSchema,
   type OffsetPage,
   offsetPageSchema,
 } from "@/shared/api/pagination";
+import { parseResponse } from "@/shared/api/parse";
+import { request } from "@/shared/api/request";
 
 import type { Listing } from "../model/listing";
-import { listingDtoSchema } from "./dto";
+import { type ListingDto, listingDtoSchema } from "./dto";
 import { mapListing } from "./mapper";
 
 export async function getListingsCursor(params: {
@@ -15,7 +16,9 @@ export async function getListingsCursor(params: {
   cursor: string | null;
   signal?: AbortSignal;
 }): Promise<CursorPage<Listing>> {
-  const response = await apiClient.get("/listings", {
+  const data = await request<CursorPage<ListingDto>>({
+    method: "GET",
+    url: "/listings",
     params: {
       pagination: "cursor",
       limit: params.limit,
@@ -24,7 +27,7 @@ export async function getListingsCursor(params: {
     signal: params.signal,
   });
 
-  const dto = cursorPageSchema(listingDtoSchema).parse(response.data);
+  const dto = parseResponse(cursorPageSchema(listingDtoSchema), data);
 
   return {
     items: dto.items.map(mapListing),
@@ -37,7 +40,9 @@ export async function getListingsOffset(params: {
   offset: number;
   signal?: AbortSignal;
 }): Promise<OffsetPage<Listing>> {
-  const response = await apiClient.get("/listings", {
+  const data = await request<OffsetPage<ListingDto>>({
+    method: "GET",
+    url: "/listings",
     params: {
       pagination: "offset",
       limit: params.limit,
@@ -46,7 +51,7 @@ export async function getListingsOffset(params: {
     signal: params.signal,
   });
 
-  const dto = offsetPageSchema(listingDtoSchema).parse(response.data);
+  const dto = parseResponse(offsetPageSchema(listingDtoSchema), data);
 
   return {
     items: dto.items.map(mapListing),
@@ -56,11 +61,12 @@ export async function getListingsOffset(params: {
 }
 
 export async function getListingBySlug(slug: string): Promise<Listing> {
-  const response = await apiClient.get(
-    `/listings/by-slug/${encodeURIComponent(slug)}`,
-  );
+  const data = await request({
+    method: "GET",
+    url: `/listings/by-slug/${slug}`,
+  });
 
-  const dto = listingDtoSchema.parse(response.data);
+  const dto = parseResponse(listingDtoSchema, data);
 
   return mapListing(dto);
 }
