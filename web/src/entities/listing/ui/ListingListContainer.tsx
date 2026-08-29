@@ -1,5 +1,6 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 
+import { ErrorMessage } from "@/shared/components/ErrorMessage";
 import { Button } from "@/shared/components/ui/button";
 
 import { listingsQuery } from "../api/queries";
@@ -8,15 +9,17 @@ import { ListingList } from "./ListingList";
 function ListingListContainer() {
   const query = useInfiniteQuery(listingsQuery);
 
+  if (query.error) {
+    return (
+      <ErrorMessage error={query.error} onRetry={() => void query.refetch()} />
+    );
+  }
+
   const listings = query.data?.pages.flatMap((page) => page.items) ?? [];
 
   return (
     <div className="space-y-8">
-      <ListingList
-        listings={listings}
-        isLoading={query.isPending}
-        error={query.error?.message}
-      />
+      <ListingList listings={listings} isLoading={query.isPending} />
 
       {query.hasNextPage && (
         <div className="flex justify-center">

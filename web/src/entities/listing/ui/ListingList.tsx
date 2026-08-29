@@ -4,15 +4,10 @@ import { ListingCardSkeleton } from "./ListingCardSkeleton";
 
 type ListingListProps = {
   listings: Listing[];
-  isLoading?: boolean;
-  error?: string | null;
+  isLoading: boolean;
 };
 
-export function ListingList({
-  listings,
-  isLoading = false,
-  error = null,
-}: ListingListProps) {
+export function ListingList({ listings, isLoading }: ListingListProps) {
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -21,10 +16,6 @@ export function ListingList({
         ))}
       </div>
     );
-  }
-
-  if (error) {
-    return <p className="text-destructive">Failed to load listings: {error}</p>;
   }
 
   if (listings.length === 0) {
