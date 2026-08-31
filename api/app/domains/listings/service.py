@@ -54,7 +54,6 @@ class ListingService:
                         self.uow.listings.add(listing=listing)
                         await self.uow.session.flush()
 
-                # TODO: consider refactoring exceptions
                 except ConflictError as exc:
                     if exc.conflict != "listings_slug":
                         raise

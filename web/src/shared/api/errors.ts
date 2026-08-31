@@ -7,6 +7,7 @@ export type AppError =
       status: number;
       code: string;
       detail: string;
+      conflict?: string;
     }
   | {
       type: "network";
@@ -25,6 +26,11 @@ export type AppError =
 const apiErrorSchema = z.object({
   code: z.string(),
   detail: z.string(),
+  conflict: z.string().optional(),
+});
+
+const fastApiErrorSchema = z.object({
+  detail: z.union([z.string(), z.array(z.unknown())]),
 });
 
 export function normalizeError(error: unknown): AppError {
@@ -36,14 +42,31 @@ export function normalizeError(error: unknown): AppError {
       };
     }
 
-    const result = apiErrorSchema.safeParse(error.response.data);
+    const { status, data } = error.response;
+
+    // Check if API application error
+    const result = apiErrorSchema.safeParse(data);
 
     if (result.success) {
       return {
         type: "api",
-        status: error.response.status,
-        code: result.data.code,
-        detail: result.data.detail,
+        status,
+        ...result.data,
+      };
+    }
+
+    // Check if error comes from FastAPI
+    const fastApiResult = fastApiErrorSchema.safeParse(data);
+
+    if (fastApiResult.success) {
+      return {
+        type: "api",
+        status,
+        code: "http_error",
+        detail:
+          typeof fastApiResult.data.detail === "string"
+            ? fastApiResult.data.detail
+            : "The server returned a validation error.",
       };
     }
 
