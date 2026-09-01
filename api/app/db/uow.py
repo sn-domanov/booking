@@ -10,6 +10,7 @@ from app.domains.listings.repository.constraints import (
 )
 from app.domains.listings.repository.listing import ListingRepository
 from app.domains.listings.repository.listing_image import ListingImageRepository
+from app.domains.users.repository import UserRepository
 
 DATABASE_CONSTRAINT_MAP = {
     **LISTINGS_CONSTRAINT_MAP,
@@ -21,6 +22,7 @@ class UnitOfWork:
         self.session = session
         self.listings = ListingRepository(session)
         self.listing_images = ListingImageRepository(session)
+        self.users = UserRepository(session)
 
     async def commit(self) -> None:
         await self.session.commit()
