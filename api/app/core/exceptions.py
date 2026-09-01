@@ -30,6 +30,10 @@ class StorageError(ApplicationError):
 # ─────────────────────────────────────────
 
 
+class ForbiddenError(ApplicationError):
+    code = "forbidden"
+
+
 class NotFoundError(ApplicationError):
     code = "not_found"
 
