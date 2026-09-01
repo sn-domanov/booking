@@ -5,6 +5,7 @@ from sqlalchemy.exc import DBAPIError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.exceptions import raise_from_database_error
+from app.db.session import session_factory
 from app.domains.listings.repository.constraints import (
     CONSTRAINT_MAP as LISTINGS_CONSTRAINT_MAP,
 )
@@ -61,3 +62,9 @@ class UnitOfWork:
                 exc,
                 DATABASE_CONSTRAINT_MAP,
             )
+
+
+@asynccontextmanager
+async def create_uow() -> AsyncGenerator[UnitOfWork]:
+    async with session_factory() as session:
+        yield UnitOfWork(session)

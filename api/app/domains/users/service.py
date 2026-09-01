@@ -14,10 +14,17 @@ class UserService:
 
     async def create_user(self, *, data: UserCreate) -> User:
         async with self.uow.transaction():
-            user = User(
-                email=data.email,
-                password_hash=get_password_hash(data.password),
-                display_name=data.display_name,
+            user = self._build_user(data=data)
+
+            self.uow.users.add(user=user)
+
+            return user
+
+    async def create_admin(self, *, data: UserCreate) -> User:
+        async with self.uow.transaction():
+            user = self._build_user(
+                data=data,
+                is_admin=True,
             )
 
             self.uow.users.add(user=user)
@@ -97,3 +104,16 @@ class UserService:
             raise NotFoundError("User not found")
 
         return user
+
+    @staticmethod
+    def _build_user(
+        *,
+        data: UserCreate,
+        is_admin: bool = False,
+    ) -> User:
+        return User(
+            email=data.email,
+            password_hash=get_password_hash(data.password),
+            display_name=data.display_name,
+            is_admin=is_admin,
+        )

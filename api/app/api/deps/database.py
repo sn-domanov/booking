@@ -3,13 +3,12 @@ from typing import Annotated
 
 from fastapi import Depends
 
-from app.db.session import session_factory
-from app.db.uow import UnitOfWork
+from app.db.uow import UnitOfWork, create_uow
 
 
 async def get_uow() -> AsyncGenerator[UnitOfWork]:
-    async with session_factory() as session:
-        yield UnitOfWork(session)
+    async with create_uow() as uow:
+        yield uow
 
 
 UoWDep = Annotated[
