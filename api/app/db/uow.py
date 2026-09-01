@@ -5,11 +5,13 @@ from sqlalchemy.exc import DBAPIError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.exceptions import raise_from_database_error
+from app.db.session import session_factory
 from app.domains.listings.repository.constraints import (
     CONSTRAINT_MAP as LISTINGS_CONSTRAINT_MAP,
 )
 from app.domains.listings.repository.listing import ListingRepository
 from app.domains.listings.repository.listing_image import ListingImageRepository
+from app.domains.users.repository import UserRepository
 
 DATABASE_CONSTRAINT_MAP = {
     **LISTINGS_CONSTRAINT_MAP,
@@ -21,6 +23,7 @@ class UnitOfWork:
         self.session = session
         self.listings = ListingRepository(session)
         self.listing_images = ListingImageRepository(session)
+        self.users = UserRepository(session)
 
     async def commit(self) -> None:
         await self.session.commit()
@@ -59,3 +62,9 @@ class UnitOfWork:
                 exc,
                 DATABASE_CONSTRAINT_MAP,
             )
+
+
+@asynccontextmanager
+async def create_uow() -> AsyncGenerator[UnitOfWork]:
+    async with session_factory() as session:
+        yield UnitOfWork(session)

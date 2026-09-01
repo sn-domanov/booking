@@ -1,4 +1,5 @@
 from decimal import Decimal
+from typing import TYPE_CHECKING
 from uuid import UUID, uuid7
 
 from sqlalchemy import (
@@ -15,6 +16,9 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
 from app.db.mixins import TimestampMixin
+
+if TYPE_CHECKING:
+    from app.domains.users.models import User
 
 
 class Listing(TimestampMixin, Base):
@@ -35,6 +39,15 @@ class Listing(TimestampMixin, Base):
         primary_key=True,
         default=uuid7,
     )
+
+    # TODO: make non-nullable when auth is ready
+    owner_id: Mapped[UUID | None] = mapped_column(
+        PG_UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="RESTRICT"),
+        index=True,
+        nullable=True,
+    )
+
     slug: Mapped[str] = mapped_column(
         String(80),
         nullable=False,
@@ -54,6 +67,11 @@ class Listing(TimestampMixin, Base):
     )
     max_guests: Mapped[int] = mapped_column(nullable=False)
 
+    owner: Mapped[User] = relationship(
+        "User",
+        foreign_keys=[owner_id],
+        back_populates="listings",
+    )
     images: Mapped[list[ListingImage]] = relationship(
         back_populates="listing",
         cascade="all, delete-orphan",
@@ -75,27 +93,26 @@ class ListingImage(TimestampMixin, Base):
         PG_UUID(as_uuid=True),
         primary_key=True,
     )
+
     listing_id: Mapped[UUID] = mapped_column(
         PG_UUID(as_uuid=True),
         ForeignKey("listings.id", ondelete="CASCADE"),
         nullable=False,
     )
+
     storage_key: Mapped[str] = mapped_column(
         String(2000),
         nullable=False,
     )
-
     # MIME media type
     content_type: Mapped[str] = mapped_column(
         String(100),
         nullable=False,
     )
-
     position: Mapped[int] = mapped_column(
         Integer(),
         nullable=False,
     )
-
     listing: Mapped[Listing] = relationship(
         back_populates="images",
     )

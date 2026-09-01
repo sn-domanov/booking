@@ -10,6 +10,7 @@ dependencies = [
     "fastapi[standard]>=0.141.1",
     "pillow>=12.3.0",
     "psycopg[binary]>=3.3.4",
+    "pwdlib[argon2]>=0.3.1",
     "python-slugify>=8.0.4",
     "sqlalchemy>=2.0.51",
 ]
