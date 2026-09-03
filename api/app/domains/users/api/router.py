@@ -2,8 +2,9 @@ from uuid import UUID
 
 from fastapi import APIRouter, status
 
+from app.api.deps.auth import CurrentUserDep
 from app.api.deps.users import UserServiceDep
-from app.domains.users.api.schemas import UserCreate, UserResponse
+from app.domains.users.api.schemas import CurrentUserResponse, UserCreate, UserResponse
 from app.domains.users.models import User
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -14,6 +15,11 @@ async def create_user(data: UserCreate, service: UserServiceDep) -> User:
     user = await service.create_user(data=data)
 
     return user
+
+
+@router.get("/me", response_model=CurrentUserResponse)
+async def get_current_user(current_user: CurrentUserDep) -> User:
+    return current_user
 
 
 @router.get("/{user_id}", response_model=UserResponse)

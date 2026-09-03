@@ -3,6 +3,7 @@ from fastapi.responses import JSONResponse
 
 from app.core.exceptions import (
     ApplicationError,
+    AuthenticationError,
     ConflictError,
     ForbiddenError,
     ImageDimensionError,
@@ -20,6 +21,7 @@ DEFAULT_STATUS_CODE_MAP = {
     ImageProcessingError: 400,
     InvalidCursorError: 400,
     InvalidStorageKeyError: 400,
+    AuthenticationError: 401,
     ForbiddenError: 403,
     NotFoundError: 404,
     ConflictError: 409,

@@ -28,6 +28,8 @@ services:
   api-migrate:
     environment:
       APP_ENV: development
+    volumes:
+      - ../api:/app:z
 
   db:
     ports:

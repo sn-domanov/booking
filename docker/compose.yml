@@ -1,7 +1,6 @@
 name: ${COMPOSE_PROJECT_NAME}
 
 x-api-environment: &api-environment
-  SECRET_KEY: ${SECRET_KEY}
   DB__HOST: db
   DB__PORT: 5432
   DB__NAME: ${POSTGRES_DB}
@@ -13,6 +12,9 @@ x-api-environment: &api-environment
   S3__PUBLIC_BASE_URL: ${S3_PUBLIC_BASE_URL}
   S3__REGION: ${S3_REGION}
   S3__BUCKET: ${S3_BUCKET}
+  JWT__SECRET_KEY: ${JWT_SECRET_KEY}
+  JWT__ACCESS_TOKEN_TTL: ${JWT_ACCESS_TOKEN_TTL}
+  JWT__REFRESH_TOKEN_TTL: ${JWT_REFRESH_TOKEN_TTL}
   CORS_ORIGINS: ${CORS_ORIGINS}
 
 services:

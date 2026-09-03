@@ -1,3 +1,4 @@
+from datetime import timedelta
 from functools import lru_cache
 from pathlib import Path
 from typing import Literal
@@ -47,6 +48,21 @@ class S3Settings(BaseModel):
     bucket: str
 
 
+class JwtSettings(BaseModel):
+    secret_key: SecretStr
+    algorithm: str = "HS256"
+
+    access_token_ttl: timedelta
+    refresh_token_ttl: timedelta
+
+    access_token_cookie_name: str = "access_token"
+    refresh_token_cookie_name: str = "refresh_token"
+
+    cookie_secure: bool = True
+    cookie_samesite: Literal["lax", "strict", "none"] | None = "lax"
+
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_nested_delimiter="__",
@@ -67,9 +83,9 @@ class Settings(BaseSettings):
         return self.app_env != "production"
 
     db: DatabaseSettings
-
-    local_storage: LocalObjectStorageSettings = LocalObjectStorageSettings()
     s3: S3Settings
+    local_storage: LocalObjectStorageSettings = LocalObjectStorageSettings()
+    jwt: JwtSettings
 
     # Limits
     max_upload_size_bytes: int = 10 * 1024 * 1024  # 10MB

@@ -1,4 +1,4 @@
-from app.core.security import get_password_hash
+from app.core.security import hash_password
 from app.domains.users.models import User
 
 
@@ -14,7 +14,7 @@ def user_factory(
         email=email,
         display_name=display_name,
         # TODO: this uses expensive argon2 in tests, reconsider if tests are slow
-        password_hash=get_password_hash(password),
+        password_hash=hash_password(password),
         is_active=is_active,
         is_admin=is_admin,
     )

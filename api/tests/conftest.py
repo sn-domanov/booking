@@ -137,7 +137,7 @@ async def client(
     try:
         async with AsyncClient(
             transport=ASGITransport(app=app),
-            base_url="http://test",
+            base_url="https://test",
         ) as ac:
             yield ac
     finally:
