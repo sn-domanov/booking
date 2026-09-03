@@ -17,6 +17,10 @@ class ApplicationError(Exception):
         }
 
 
+class AuthenticationError(ApplicationError):
+    code = "authentication_error"
+
+
 class ImageProcessingError(ApplicationError):
     code = "image_processing_error"
 
@@ -26,7 +30,7 @@ class StorageError(ApplicationError):
 
 
 # ─────────────────────────────────────────
-# Application exceptions
+# Application errors
 # ─────────────────────────────────────────
 
 
@@ -63,6 +67,36 @@ class ValidationError(ApplicationError):
     code = "validation_error"
 
 
+class InvalidCursorError(ApplicationError):
+    code = "invalid_cursor"
+
+
+# ─────────────────────────────────────────
+# Authentication errors
+# ─────────────────────────────────────────
+
+
+class InvalidTokenError(AuthenticationError):
+    code = "invalid_token"
+
+
+class ExpiredTokenError(AuthenticationError):
+    code = "expired_token"
+
+
+class RefreshTokenReuseError(AuthenticationError):
+    code = "refresh_token_reuse"
+
+
+class InvalidCredentialsError(AuthenticationError):
+    code = "invalid_credentials"
+
+
+# ─────────────────────────────────────────
+# File errors
+# ─────────────────────────────────────────
+
+
 class ImageTooLargeError(ImageProcessingError):
     code = "image_too_large"
 
@@ -77,7 +111,3 @@ class ImageDimensionError(ImageProcessingError):
 
 class InvalidStorageKeyError(StorageError):
     code = "invalid_storage_key"
-
-
-class InvalidCursorError(ApplicationError):
-    code = "invalid_cursor"

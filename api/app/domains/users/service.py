@@ -2,7 +2,7 @@ from datetime import UTC, datetime
 from uuid import UUID
 
 from app.core.exceptions import ForbiddenError, NotFoundError, ValidationError
-from app.core.security import get_password_hash
+from app.core.security import hash_password
 from app.db.uow import UnitOfWork
 from app.domains.users.api.schemas import CurrentUserUpdate, UserCreate
 from app.domains.users.models import User
@@ -113,7 +113,7 @@ class UserService:
     ) -> User:
         return User(
             email=data.email,
-            password_hash=get_password_hash(data.password),
+            password_hash=hash_password(data.password),
             display_name=data.display_name,
             is_admin=is_admin,
         )
