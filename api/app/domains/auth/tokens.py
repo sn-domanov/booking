@@ -46,12 +46,12 @@ def decode_access_token(token: str, settings: JwtSettings) -> uuid.UUID:
         return uuid.UUID(payload["sub"])
 
     # `UUID` raises ValueError for an invalid UUID string.
-    except ValueError as err:
-        raise InvalidTokenError("Invalid token") from err
-    except jwt.ExpiredSignatureError as err:
-        raise ExpiredTokenError("Token expired") from err
-    except jwt.InvalidTokenError as err:
-        raise InvalidTokenError("Invalid token") from err
+    except ValueError as exc:
+        raise InvalidTokenError("Invalid token") from exc
+    except jwt.ExpiredSignatureError as exc:
+        raise ExpiredTokenError("Token expired") from exc
+    except jwt.InvalidTokenError as exc:
+        raise InvalidTokenError("Invalid token") from exc
 
 
 # ─────────────────────────────────────────
