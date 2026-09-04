@@ -3,7 +3,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
-from pydantic import BaseModel, SecretStr, computed_field
+from pydantic import BaseModel, EmailStr, SecretStr, computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -48,6 +48,22 @@ class S3Settings(BaseModel):
     bucket: str
 
 
+class SMTPSettings(BaseModel):
+    hostname: str
+    port: int = 587
+
+    from_email: EmailStr = "noreply@example.com"
+    from_name: str = "Booking"
+
+    # Mailpit doesn't support STARTTLS, nor AUTH
+    username: str | None = None
+    password: SecretStr | None = None
+    # start_tls is modern and preferred over SMTPS (Implicit TLS)
+    start_tls: bool = False
+
+    timeout: float = 10.0
+
+
 class JwtSettings(BaseModel):
     secret_key: SecretStr
     algorithm: str = "HS256"
@@ -60,7 +76,6 @@ class JwtSettings(BaseModel):
 
     cookie_secure: bool = True
     cookie_samesite: Literal["lax", "strict", "none"] | None = "lax"
-
 
 
 class Settings(BaseSettings):
@@ -85,6 +100,7 @@ class Settings(BaseSettings):
     db: DatabaseSettings
     s3: S3Settings
     local_storage: LocalObjectStorageSettings = LocalObjectStorageSettings()
+    smtp: SMTPSettings
     jwt: JwtSettings
 
     # Limits
