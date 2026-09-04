@@ -4,7 +4,7 @@ from uuid import UUID
 from pydantic import EmailStr
 
 from app.api.schemas import ApiSchema
-from app.domains.users.api.types import (
+from app.core.types import (
     NormalizedDisplayName,
     NormalizedEmail,
     PasswordInput,
