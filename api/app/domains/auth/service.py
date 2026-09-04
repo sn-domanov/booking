@@ -102,7 +102,7 @@ class AuthService:
                 token_hash=hash_refresh_token(new_refresh_token),
                 expires_at=now + self.jwt_settings.refresh_token_ttl,
             )
-            # TODO: experiment with when the feature is ready
+
             await self.uow.session.flush()
 
             await self.uow.refresh_tokens.revoke(
