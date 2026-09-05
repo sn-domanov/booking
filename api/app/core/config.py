@@ -78,6 +78,11 @@ class JwtSettings(BaseModel):
     cookie_samesite: Literal["lax", "strict", "none"] | None = "lax"
 
 
+class AuthSetting(BaseModel):
+    jwt: JwtSettings
+    password_reset_token_ttl: timedelta = timedelta(minutes=60)
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_nested_delimiter="__",
@@ -101,7 +106,7 @@ class Settings(BaseSettings):
     s3: S3Settings
     local_storage: LocalObjectStorageSettings = LocalObjectStorageSettings()
     smtp: SMTPSettings
-    jwt: JwtSettings
+    auth: AuthSetting
 
     # Limits
     max_upload_size_bytes: int = 10 * 1024 * 1024  # 10MB
@@ -110,6 +115,7 @@ class Settings(BaseSettings):
 
     # SPA
     cors_origins: list[str]
+    frontend_base_url: str
 
 
 @lru_cache

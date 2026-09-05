@@ -76,20 +76,32 @@ class InvalidCursorError(ApplicationError):
 # ─────────────────────────────────────────
 
 
-class InvalidTokenError(AuthenticationError):
-    code = "invalid_token"
+class InvalidCredentialsError(AuthenticationError):
+    code = "invalid_credentials"
 
 
-class ExpiredTokenError(AuthenticationError):
-    code = "expired_token"
+class InvalidAccessTokenError(AuthenticationError):
+    code = "invalid_access_token"
+
+
+class ExpiredAccessTokenError(AuthenticationError):
+    code = "expired_access_token"
+
+
+class InvalidRefreshTokenError(AuthenticationError):
+    code = "invalid_refresh_token"
+
+
+class ExpiredRefreshTokenError(AuthenticationError):
+    code = "expired_refresh_token"
 
 
 class RefreshTokenReuseError(AuthenticationError):
     code = "refresh_token_reuse"
 
 
-class InvalidCredentialsError(AuthenticationError):
-    code = "invalid_credentials"
+class InvalidPasswordResetTokenError(AuthenticationError):
+    code = "invalid_password_reset_token"
 
 
 # ─────────────────────────────────────────

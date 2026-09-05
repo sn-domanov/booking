@@ -10,7 +10,7 @@ from app.domains.auth.service import AuthService
 def get_auth_service(uow: UoWDep, settings: SettingsDep) -> AuthService:
     return AuthService(
         uow=uow,
-        jwt_settings=settings.jwt,
+        settings=settings.auth
     )
 
 

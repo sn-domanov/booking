@@ -13,5 +13,5 @@ def verify_password(plain: str, hash: str) -> bool:
     return password_hash.verify(plain, hash)
 
 
-def hash_refresh_token(token: str) -> str:
+def hash_token(token: str) -> str:
     return hashlib.sha256(token.encode()).hexdigest()
