@@ -8,6 +8,14 @@ from app.core.exceptions import ValidationError
 T = TypeVar("T")
 
 
+class MessageResponse(BaseModel):
+    message: str
+
+    @classmethod
+    def from_message(cls, message: str) -> MessageResponse:
+        return cls(message=message)
+
+
 class ApiSchema(BaseModel):
     model_config = ConfigDict(
         alias_generator=to_camel,
