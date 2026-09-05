@@ -13,10 +13,12 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from app.api.deps.database import get_uow
+from app.api.deps.email import get_email_sender
 from app.core.config import get_settings
 from app.db.base import Base
 from app.db.uow import UnitOfWork
 from app.main import create_app
+from tests.fakes.email import FakeEmailSender
 
 # ─────────────────────────────────────────
 # App
@@ -113,6 +115,11 @@ def moto_s3():
         yield client
 
 
+@pytest.fixture
+def fake_email_sender() -> FakeEmailSender:
+    return FakeEmailSender()
+
+
 # ─────────────────────────────────────────
 # FastAPI client
 # ─────────────────────────────────────────
@@ -122,17 +129,23 @@ def moto_s3():
 async def client(
     uow: UnitOfWork,
     moto_s3,
+    fake_email_sender,
 ) -> AsyncGenerator[AsyncClient]:
     """
     HTTP client configured with test dependencies:
     - test UnitOfWork
     - in-memory S3 service provided by Moto
+    - fake email sender
     """
 
-    async def get_test_uow() -> AsyncGenerator[UnitOfWork]:
+    async def override_uow() -> AsyncGenerator[UnitOfWork]:
         yield uow
 
-    app.dependency_overrides[get_uow] = get_test_uow
+    def override_email_sender():
+        return fake_email_sender
+
+    app.dependency_overrides[get_uow] = override_uow
+    app.dependency_overrides[get_email_sender] = override_email_sender
 
     try:
         async with AsyncClient(
@@ -141,4 +154,5 @@ async def client(
         ) as ac:
             yield ac
     finally:
-        app.dependency_overrides.clear()
+        app.dependency_overrides.pop(get_uow, None)
+        app.dependency_overrides.pop(get_email_sender, None)
