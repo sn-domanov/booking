@@ -34,7 +34,7 @@ async def get_access_token(
         return bearer_token
 
     if cookie_token := request.cookies.get(
-        settings.jwt.access_token_cookie_name,
+        settings.auth.jwt.access_token_cookie_name,
     ):
         return cookie_token
 
@@ -49,20 +49,14 @@ async def get_current_user(
     try:
         user_id = decode_access_token(
             access_token,
-            settings.jwt,
+            settings.auth.jwt,
         )
     except AuthenticationError as exc:
         raise unauthorized("Could not validate credentials") from exc
 
     user = await uow.users.get(user_id=user_id)
 
-    if user is None:
-        raise unauthorized("Could not validate credentials")
-
-    if not user.is_active:
-        raise unauthorized("Could not validate credentials")
-
-    if user.deleted_at is not None:
+    if user is None or not user.is_active:
         raise unauthorized("Could not validate credentials")
 
     return user

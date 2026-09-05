@@ -6,7 +6,7 @@ from uuid import UUID
 import jwt
 
 from app.core.config import JwtSettings
-from app.core.exceptions import ExpiredTokenError, InvalidTokenError
+from app.core.exceptions import ExpiredAccessTokenError, InvalidAccessTokenError
 
 # ─────────────────────────────────────────
 # Access token
@@ -47,11 +47,11 @@ def decode_access_token(token: str, settings: JwtSettings) -> uuid.UUID:
 
     # `UUID` raises ValueError for an invalid UUID string.
     except ValueError as exc:
-        raise InvalidTokenError("Invalid token") from exc
+        raise InvalidAccessTokenError("Invalid access token") from exc
     except jwt.ExpiredSignatureError as exc:
-        raise ExpiredTokenError("Token expired") from exc
+        raise ExpiredAccessTokenError("Access token expired") from exc
     except jwt.InvalidTokenError as exc:
-        raise InvalidTokenError("Invalid token") from exc
+        raise InvalidAccessTokenError("Invalid access token") from exc
 
 
 # ─────────────────────────────────────────
@@ -61,6 +61,17 @@ def decode_access_token(token: str, settings: JwtSettings) -> uuid.UUID:
 
 def create_refresh_token() -> str:
     # Using opaque refresh token instead of JWT for refresh
+    token = secrets.token_urlsafe(32)
+
+    return token
+
+
+# ─────────────────────────────────────────
+# Password reset
+# ─────────────────────────────────────────
+
+
+def create_password_reset_token() -> str:
     token = secrets.token_urlsafe(32)
 
     return token
