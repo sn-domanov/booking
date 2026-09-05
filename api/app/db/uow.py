@@ -6,7 +6,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.exceptions import raise_from_database_error
 from app.db.session import session_factory
-from app.domains.auth.repository import RefreshTokenRepository
+from app.domains.auth.repository import (
+    PasswordResetTokenRepository,
+    RefreshTokenRepository,
+)
 from app.domains.listings.repository.constraints import (
     CONSTRAINT_MAP as LISTINGS_CONSTRAINT_MAP,
 )
@@ -26,6 +29,7 @@ class UnitOfWork:
         self.listing_images = ListingImageRepository(session)
         self.users = UserRepository(session)
         self.refresh_tokens = RefreshTokenRepository(session)
+        self.password_reset_tokens = PasswordResetTokenRepository(session)
 
     async def commit(self) -> None:
         await self.session.commit()
