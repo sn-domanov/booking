@@ -61,10 +61,9 @@ async def test_refresh_invalid_token(
 
     assert response.status_code == 401
 
+    data = response.json()
 
-# ─────────────────────────────────────────
-# 422 Unprocessable Entity
-# ─────────────────────────────────────────
+    assert data["detail"] == "Invalid refresh token"
 
 
 async def test_refresh_without_cookie(
@@ -72,4 +71,8 @@ async def test_refresh_without_cookie(
 ) -> None:
     response = await client.post("/api/v1/auth/refresh")
 
-    assert response.status_code == 422
+    assert response.status_code == 401
+
+    data = response.json()
+
+    assert data["detail"] == "Missing refresh token"
