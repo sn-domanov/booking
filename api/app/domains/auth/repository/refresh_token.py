@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 from datetime import datetime
 from uuid import UUID
 
@@ -13,6 +14,7 @@ class RefreshTokenRepository:
 
     async def get_by_hash_for_update(
         self,
+        *,
         token_hash: str,
     ) -> RefreshToken | None:
         stmt = (
@@ -28,6 +30,17 @@ class RefreshTokenRepository:
         result = await self.session.execute(stmt)
 
         return result.scalar_one_or_none()
+
+    async def list_by_user_id(
+        self,
+        *,
+        user_id: UUID,
+    ) -> Sequence[RefreshToken]:
+        stmt = select(RefreshToken).where(RefreshToken.user_id == user_id)
+
+        result = await self.session.scalars(stmt)
+
+        return result.all()
 
     async def create(
         self,
