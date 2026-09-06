@@ -80,6 +80,10 @@ class InvalidCredentialsError(AuthenticationError):
     code = "invalid_credentials"
 
 
+class InvalidCUrrentPasswordError(AuthenticationError):
+    code = "invalid_current_password"
+
+
 class InvalidAccessTokenError(AuthenticationError):
     code = "invalid_access_token"
 

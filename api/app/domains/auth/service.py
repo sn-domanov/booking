@@ -80,7 +80,7 @@ class AuthService:
             now = datetime.now(UTC)
 
             refresh_token_record = await self.uow.refresh_tokens.get_by_hash_for_update(
-                hash_token(refresh_token)
+                token_hash=hash_token(refresh_token)
             )
 
             if refresh_token_record is None:

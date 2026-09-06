@@ -1,8 +1,13 @@
 from datetime import UTC, datetime
 from uuid import UUID
 
-from app.core.exceptions import ForbiddenError, NotFoundError, ValidationError
-from app.core.security import hash_password
+from app.core.exceptions import (
+    ForbiddenError,
+    InvalidCUrrentPasswordError,
+    NotFoundError,
+    ValidationError,
+)
+from app.core.security import hash_password, verify_password
 from app.db.uow import UnitOfWork
 from app.domains.users.api.schemas import CurrentUserUpdate, UserCreate
 from app.domains.users.models import User
@@ -88,6 +93,23 @@ class UserService:
                 raise NotFoundError("User not found")
 
             user.is_active = True
+
+    async def change_password(
+        self,
+        *,
+        user: User,
+        current_password: str,
+        new_password: str,
+    ) -> None:
+        async with self.uow.transaction():
+            if not verify_password(current_password, user.password_hash):
+                raise InvalidCUrrentPasswordError("Incorrect current password")
+
+            user.password_hash = hash_password(new_password)
+
+            await self.uow.password_reset_tokens.delete_for_user(user_id=user.id)
+
+            await self.uow.refresh_tokens.revoke_for_user(user_id=user.id)
 
     async def _get_user(
         self,
