@@ -21,6 +21,7 @@ class RefreshToken(Base):
     user_id: Mapped[UUID] = mapped_column(
         PG_UUID(as_uuid=True),
         ForeignKey("users.id", ondelete="CASCADE"),
+        index=True,
     )
     replaced_by_id: Mapped[UUID | None] = mapped_column(
         PG_UUID(as_uuid=True),
