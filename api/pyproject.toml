@@ -19,6 +19,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "djlint>=1.45.2",
     "moto[s3]>=5.2.2",
     "pytest>=9.1.1",
     "pytest-asyncio>=1.4.0",
@@ -70,3 +71,15 @@ env = [
     "AWS_SECRET_ACCESS_KEY=booking_test",
     "AWS_DEFAULT_REGION=us-east-1"
 ]
+
+[tool.djlint]
+profile = "jinja"
+
+# H021: Allow inline styles in email templates.
+# Email clients have limited CSS support and often require inline styles.
+ignore = "H021"
+
+max_blank_lines = 1
+blank_line_after_tag = "load,extends,include"
+blank_line_before_tag = "load,extends,include"
+close_void_tags = true
