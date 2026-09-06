@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 from datetime import datetime
 from uuid import UUID
 
@@ -41,18 +42,18 @@ class PasswordResetTokenRepository:
 
         return result.scalar_one_or_none()
 
-    async def get_for_user(
+    async def list_by_user_id(
         self,
         *,
         user_id: UUID,
-    ) -> PasswordResetToken | None:
+    ) -> Sequence[PasswordResetToken]:
         stmt = select(PasswordResetToken).where(
             PasswordResetToken.user_id == user_id,
         )
 
-        result = await self.session.execute(stmt)
+        result = await self.session.scalars(stmt)
 
-        return result.scalar_one_or_none()
+        return result.all()
 
     async def delete_for_user(
         self,

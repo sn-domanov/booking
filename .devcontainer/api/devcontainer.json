@@ -19,6 +19,8 @@
         "ms-python.debugpy",
         "ms-python.vscode-pylance",
         "charliermarsh.ruff",
+        "samuelcolvin.jinjahtml",
+        "monosans.djlint",
         "humao.rest-client",
         // Common
         "streetsidesoftware.code-spell-checker",
@@ -34,6 +36,9 @@
         "python.analysis.inlayHints.functionReturnTypes": true,
         "python.analysis.inlayHints.callArgumentNames": "partial",
         "python.analysis.inlayHints.pytestParameters": true,
+        "files.associations": {
+          "**/templates/**/*.html": "jinja-html"
+        },
         "[python]": {
           "editor.defaultFormatter": "charliermarsh.ruff",
           "editor.formatOnSave": true,
@@ -45,6 +50,9 @@
         "[json]": {
           "editor.tabSize": 2,
           "editor.defaultFormatter": "vscode.json-language-features"
+        },
+        "[jinja-html]": {
+          "editor.defaultFormatter": "monosans.djlint"
         }
       }
     }

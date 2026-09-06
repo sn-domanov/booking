@@ -12,6 +12,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 from app.api.deps.email import EmailSenderDep
 from app.api.deps.settings import SettingsDep
+from app.api.schemas import MessageResponse
 from app.core.exceptions import InvalidRefreshTokenError
 from app.domains.auth.api.cookies import delete_auth_cookies, set_auth_cookies
 from app.domains.auth.api.deps import AuthServiceDep
@@ -106,14 +107,18 @@ async def logout(
 
 
 # N.B. Always return success (even if email doesn’t exist) to prevent user enumeration
-@router.post("/password-reset/request", status_code=status.HTTP_202_ACCEPTED)
+@router.post(
+    "/password-reset/request",
+    response_model=MessageResponse,
+    status_code=status.HTTP_202_ACCEPTED,
+)
 async def password_reset_request(
     data: PasswordResetRequest,
     background_tasks: BackgroundTasks,
     email_sender: EmailSenderDep,
     service: AuthServiceDep,
     settings: SettingsDep,
-) -> dict[str, str]:
+) -> MessageResponse:
     flow = await service.create_password_reset_flow(email=data.email)
 
     if flow is not None:
@@ -126,10 +131,10 @@ async def password_reset_request(
             frontend_base_url=settings.frontend_base_url,
         )
 
-    return {
-        "message": "If an account exists with this email, "
+    return MessageResponse.from_message(
+        "If an account exists with this email, "
         "you will receive password reset instructions."
-    }
+    )
 
 
 @router.post("/password-reset/confirm", status_code=status.HTTP_204_NO_CONTENT)

@@ -33,3 +33,8 @@ class CurrentUserResponse(ApiSchema):
 
 class CurrentUserUpdate(ApiSchema):
     display_name: NormalizedDisplayName
+
+
+class PasswordChangeRequest(ApiSchema):
+    current_password: PasswordInput
+    new_password: PasswordInput

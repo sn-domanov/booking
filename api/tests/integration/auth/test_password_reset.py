@@ -58,11 +58,11 @@ async def test_password_reset_request_success(
         "you will receive password reset instructions."
     )
 
-    token = await uow.password_reset_tokens.get_for_user(
+    tokens = await uow.password_reset_tokens.list_by_user_id(
         user_id=user.id,
     )
 
-    assert token is not None
+    assert len(tokens) == 1
 
 
 async def test_password_reset_request_unknown_email(
@@ -128,11 +128,11 @@ async def test_password_reset_confirm_success(
     assert verify_password("new-password", user.password_hash)
     assert not verify_password("old-password", user.password_hash)
 
-    token = await uow.password_reset_tokens.get_by_hash(
-        token_hash=hash_token(raw_token),
+    tokens = await uow.password_reset_tokens.list_by_user_id(
+        user_id=user.id,
     )
 
-    assert token is None
+    assert len(tokens) == 0
 
 
 # ─────────────────────────────────────────
