@@ -24,6 +24,10 @@ class ApiSchema(BaseModel):
     )
 
 
+class CsrfTokenResponse(ApiSchema):
+    csrf_token: str
+
+
 class PaginationQuery(ApiSchema):
     pagination: Literal["offset", "cursor"] = "offset"
     limit: int = Field(default=20, ge=1, le=100)
