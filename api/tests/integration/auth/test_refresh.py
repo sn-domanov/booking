@@ -23,8 +23,8 @@ async def test_refresh_success(
         password="testpass",
     )
 
-    old_access_token = client.cookies.get("access_token")
-    old_refresh_token = client.cookies.get("refresh_token")
+    old_access_token = client.cookies.get("booking-access-token")
+    old_refresh_token = client.cookies.get("booking-refresh-token")
 
     assert old_access_token
     assert old_refresh_token
@@ -36,8 +36,8 @@ async def test_refresh_success(
 
     assert response.status_code == 204
 
-    new_access_token = client.cookies.get("access_token")
-    new_refresh_token = client.cookies.get("refresh_token")
+    new_access_token = client.cookies.get("booking-access-token")
+    new_refresh_token = client.cookies.get("booking-refresh-token")
 
     assert new_access_token
     assert new_refresh_token
@@ -58,7 +58,7 @@ async def test_refresh_invalid_token(
 
     response = await client.post(
         "/api/v1/auth/refresh",
-        cookies={"refresh_token": "invalid-token"},
+        cookies={"booking-refresh-token": "invalid-token"},
     )
 
     assert response.status_code == 401

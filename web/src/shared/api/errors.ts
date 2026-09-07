@@ -29,6 +29,8 @@ const apiErrorSchema = z.object({
   conflict: z.string().optional(),
 });
 
+export type ApiError = z.infer<typeof apiErrorSchema>;
+
 const fastApiErrorSchema = z.object({
   detail: z.union([z.string(), z.array(z.unknown())]),
 });

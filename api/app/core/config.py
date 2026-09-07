@@ -72,8 +72,8 @@ class JwtSettings(BaseModel):
     access_token_ttl: timedelta
     refresh_token_ttl: timedelta
 
-    access_token_cookie_name: str = "access_token"
-    refresh_token_cookie_name: str = "refresh_token"
+    access_token_cookie_name: str = "booking-access-token"
+    refresh_token_cookie_name: str = "booking-refresh-token"
 
     cookie_secure: bool = True
     cookie_samesite: Literal["lax", "strict", "none"] | None = "lax"
@@ -86,10 +86,8 @@ class AuthSetting(BaseModel):
 
 class CsrfSettings(BaseModel):
     secret_key: str
+    cookie_key: str = "booking-csrf-token"
     cookie_samesite: Literal["lax", "strict", "none"] | None = "lax"
-
-    # TODO: making CSRF token's TTL same as refresh token's (user session)
-    # at this step, reconsider when implemented on SPA side
     max_age: int = 60 * 60 * 24 * 30  # 30 days
 
 

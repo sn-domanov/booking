@@ -24,8 +24,8 @@ async def test_logout_success(
         password="testpass",
     )
 
-    assert client.cookies.get("access_token")
-    assert client.cookies.get("refresh_token")
+    assert client.cookies.get("booking-access-token")
+    assert client.cookies.get("booking-refresh-token")
 
     # Logout
     response = await client.post("/api/v1/auth/logout")
@@ -35,14 +35,14 @@ async def test_logout_success(
     # Cookies should be deleted
     cookies = response.headers.get_list("set-cookie")
 
-    access_cookie = next(c for c in cookies if c.startswith("access_token="))
-    refresh_cookie = next(c for c in cookies if c.startswith("refresh_token="))
+    access_cookie = next(c for c in cookies if c.startswith("booking-access-token="))
+    refresh_cookie = next(c for c in cookies if c.startswith("booking-refresh-token="))
 
     assert "Max-Age=0" in access_cookie
     assert "Max-Age=0" in refresh_cookie
 
-    assert client.cookies.get("access_token") is None
-    assert client.cookies.get("refresh_token") is None
+    assert client.cookies.get("booking-access-token") is None
+    assert client.cookies.get("booking-refresh-token") is None
 
 
 async def test_logout_revokes_refresh_token(
@@ -57,7 +57,7 @@ async def test_logout_revokes_refresh_token(
         password="testpass",
     )
 
-    refresh_token = client.cookies.get("refresh_token")
+    refresh_token = client.cookies.get("booking-refresh-token")
     assert refresh_token
 
     # Logout
