@@ -1,5 +1,6 @@
 from fastapi import Request
 from fastapi.responses import JSONResponse
+from fastapi_csrf_protect.exceptions import CsrfProtectError
 
 from app.core.exceptions import (
     ApplicationError,
@@ -62,3 +63,18 @@ async def application_exception_handler(
     )
 
     return response
+
+
+def csrf_protect_exception_handler(
+    request: Request,
+    exc: Exception,
+) -> JSONResponse:
+    if not isinstance(exc, CsrfProtectError):
+        raise TypeError("application_exception_handler received non-ApplicationError")
+
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "detail": exc.message,
+        },
+    )

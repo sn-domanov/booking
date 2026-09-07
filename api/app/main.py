@@ -2,8 +2,12 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi_csrf_protect.exceptions import CsrfProtectError
 
-from app.api.exception_handlers import application_exception_handler
+from app.api.exception_handlers import (
+    application_exception_handler,
+    csrf_protect_exception_handler,
+)
 from app.api.router import api_v1_router
 from app.core.config import get_settings
 from app.core.exceptions import ApplicationError
@@ -51,6 +55,7 @@ def register_middleware(app: FastAPI) -> None:
 
 def register_exception_handlers(app: FastAPI) -> None:
     app.add_exception_handler(ApplicationError, application_exception_handler)
+    app.add_exception_handler(CsrfProtectError, csrf_protect_exception_handler)
 
 
 def register_routers(app: FastAPI) -> None:
