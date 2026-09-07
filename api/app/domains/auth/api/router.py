@@ -1,14 +1,10 @@
-from typing import Annotated
-
 from fastapi import (
     APIRouter,
     BackgroundTasks,
-    Depends,
     Request,
     Response,
     status,
 )
-from fastapi.security import OAuth2PasswordRequestForm
 
 from app.api.deps.email import EmailSenderDep
 from app.api.deps.settings import SettingsDep
@@ -21,29 +17,11 @@ from app.domains.auth.api.schemas import (
     LoginRequest,
     PasswordResetConfirmRequest,
     PasswordResetRequest,
-    TokenResponse,
 )
 from app.domains.auth.notifications.password_reset import send_password_reset_email
 from app.domains.users.api.schemas import UserResponse
 
 router = APIRouter(prefix="/auth", tags=["auth"])
-
-
-@router.post("/token")
-async def token(
-    data: Annotated[OAuth2PasswordRequestForm, Depends()],
-    service: AuthServiceDep,
-) -> TokenResponse:
-    result = await service.login(
-        # TODO: add email normalization
-        email=data.username,
-        password=data.password,
-    )
-
-    return TokenResponse(
-        access_token=result.tokens.access_token,
-        token_type="bearer",
-    )
 
 
 @router.post("/login", response_model=AuthResponse)
