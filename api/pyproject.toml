@@ -8,6 +8,7 @@ dependencies = [
     "aiosmtplib>=5.1.2",
     "alembic>=1.19.1",
     "boto3>=1.43.73",
+    "fastapi-csrf-protect>=1.0.7",
     "fastapi[standard]>=0.141.1",
     "pillow>=12.3.0",
     "psycopg[binary]>=3.3.4",

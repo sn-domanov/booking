@@ -5,6 +5,7 @@ from httpx import AsyncClient
 from app.db.uow import UnitOfWork
 from tests.helpers.images import image_upload
 from tests.helpers.listings import create_listing
+from tests.helpers.users import login_as
 
 # ─────────────────────────────────────────
 # POST /api/v1/listings/{listing_id}/images
@@ -20,6 +21,8 @@ async def test_listing_image_create_success(
     uow: UnitOfWork,
     moto_s3,
 ) -> None:
+    user = await login_as(client, uow)
+
     listing = await create_listing(uow)
 
     post_response = await client.post(
@@ -68,6 +71,8 @@ async def test_create_listing_image_rejects_duplicate_position(
     client: AsyncClient,
     uow: UnitOfWork,
 ) -> None:
+    user = await login_as(client, uow)
+
     listing = await create_listing(uow)
 
     await client.post(
@@ -101,7 +106,9 @@ async def test_listing_image_create_invalid_file(
     client: AsyncClient,
     uow: UnitOfWork,
     moto_s3,
-):
+) -> None:
+    user = await login_as(client, uow)
+
     listing = await create_listing(uow)
 
     response = await client.post(

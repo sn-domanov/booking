@@ -14,6 +14,17 @@ async def create_user(uow: UnitOfWork, **overrides) -> User:
     return user
 
 
+async def set_csrf_header(client: AsyncClient) -> None:
+    response = await client.get(
+        "/api/v1/csrf",
+    )
+
+    assert response.status_code == 200
+
+    csrf_token = response.json()["csrfToken"]
+    client.headers["X-CSRF-Token"] = csrf_token
+
+
 async def login_as(
     client: AsyncClient,
     uow: UnitOfWork,
@@ -26,6 +37,8 @@ async def login_as(
         email=email,
         password=password,
     )
+
+    await set_csrf_header(client)
 
     response = await client.post(
         "/api/v1/auth/login",

@@ -3,6 +3,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
+from fastapi_csrf_protect import CsrfProtect
 from pydantic import BaseModel, EmailStr, SecretStr, computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -83,6 +84,15 @@ class AuthSetting(BaseModel):
     password_reset_token_ttl: timedelta = timedelta(minutes=60)
 
 
+class CsrfSettings(BaseModel):
+    secret_key: str
+    cookie_samesite: Literal["lax", "strict", "none"] | None = "lax"
+
+    # TODO: making CSRF token's TTL same as refresh token's (user session)
+    # at this step, reconsider when implemented on SPA side
+    max_age: int = 60 * 60 * 24 * 30  # 30 days
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_nested_delimiter="__",
@@ -107,6 +117,7 @@ class Settings(BaseSettings):
     local_storage: LocalObjectStorageSettings = LocalObjectStorageSettings()
     smtp: SMTPSettings
     auth: AuthSetting
+    csrf: CsrfSettings
 
     # Limits
     max_upload_size_bytes: int = 10 * 1024 * 1024  # 10MB
@@ -121,3 +132,9 @@ class Settings(BaseSettings):
 @lru_cache
 def get_settings() -> Settings:
     return Settings()  # pyright: ignore[reportCallIssue]
+
+
+# The decorator expects BaseSettings (not BaseModel)
+@CsrfProtect.load_config  # type: ignore
+def get_csrf_config() -> CsrfSettings:
+    return get_settings().csrf

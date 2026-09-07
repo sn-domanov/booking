@@ -1,7 +1,7 @@
 from httpx import AsyncClient
 
 from app.db.uow import UnitOfWork
-from tests.helpers.users import login_as
+from tests.helpers.users import login_as, set_csrf_header
 
 # ─────────────────────────────────────────
 # POST /api/v1/auth/refresh
@@ -54,6 +54,8 @@ async def test_refresh_success(
 async def test_refresh_invalid_token(
     client: AsyncClient,
 ) -> None:
+    await set_csrf_header(client)
+
     response = await client.post(
         "/api/v1/auth/refresh",
         cookies={"refresh_token": "invalid-token"},
@@ -69,6 +71,8 @@ async def test_refresh_invalid_token(
 async def test_refresh_without_cookie(
     client: AsyncClient,
 ) -> None:
+    await set_csrf_header(client)
+
     response = await client.post("/api/v1/auth/refresh")
 
     assert response.status_code == 401

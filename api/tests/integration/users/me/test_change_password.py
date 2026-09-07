@@ -3,7 +3,7 @@ from httpx import AsyncClient
 
 from app.core.security import verify_password
 from app.db.uow import UnitOfWork
-from tests.helpers.users import login_as
+from tests.helpers.users import login_as, set_csrf_header
 
 # ─────────────────────────────────────────
 # PATCH /api/v1/users/me/password
@@ -147,6 +147,8 @@ async def test_change_password_invalid_current_password(
 async def test_change_password_unauthenticated(
     client: AsyncClient,
 ) -> None:
+    await set_csrf_header(client)
+
     response = await client.patch(
         "/api/v1/users/me/password",
         json={

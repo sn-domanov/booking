@@ -5,6 +5,7 @@ from httpx import AsyncClient
 
 from app.db.uow import UnitOfWork
 from tests.helpers.listings import create_listing
+from tests.helpers.users import login_as
 
 # ─────────────────────────────────────────
 # PUT /api/v1/listings/{listing_id}
@@ -16,6 +17,8 @@ from tests.helpers.listings import create_listing
 
 
 async def test_listing_replace_success(client: AsyncClient, uow: UnitOfWork) -> None:
+    user = await login_as(client, uow)
+
     listing = await create_listing(uow)
 
     payload = {
@@ -51,7 +54,9 @@ async def test_listing_replace_success(client: AsyncClient, uow: UnitOfWork) -> 
 # ─────────────────────────────────────────
 
 
-async def test_listing_replace_not_found(client: AsyncClient) -> None:
+async def test_listing_replace_not_found(client: AsyncClient, uow: UnitOfWork) -> None:
+    user = await login_as(client, uow)
+
     listing_id = uuid.UUID("00000000-0000-0000-0000-000000000000")
 
     payload = {
@@ -88,6 +93,8 @@ async def test_listing_replace_rejects_missing_required_field(
     uow: UnitOfWork,
     field: str,
 ) -> None:
+    user = await login_as(client, uow)
+
     listing = await create_listing(uow)
 
     payload = {
@@ -126,6 +133,8 @@ async def test_listing_replace_rejects_invalid_values(
     field: str,
     value: str | int,
 ) -> None:
+    user = await login_as(client, uow)
+
     listing = await create_listing(uow)
 
     payload = {

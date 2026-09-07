@@ -6,6 +6,7 @@ from httpx import AsyncClient
 from app.db.uow import UnitOfWork
 from tests.helpers.images import image_upload
 from tests.helpers.listings import create_listing
+from tests.helpers.users import login_as
 
 # ─────────────────────────────────────────
 # PATCH /api/v1/listings/{listing_id}/images/{image_id}
@@ -21,6 +22,8 @@ async def test_listing_image_update_success(
     uow: UnitOfWork,
     moto_s3,
 ) -> None:
+    user = await login_as(client, uow)
+
     listing = await create_listing(uow)
 
     post_response = await client.post(
@@ -75,7 +78,9 @@ async def test_listing_image_update_success(
 async def test_listing_image_update_not_found(
     client: AsyncClient,
     uow: UnitOfWork,
-):
+) -> None:
+    user = await login_as(client, uow)
+
     listing = await create_listing(uow)
 
     image_id = uuid.UUID("00000000-0000-0000-0000-000000000000")
@@ -101,7 +106,9 @@ async def test_listing_image_update_not_found(
 async def test_listing_image_update_invalid_file(
     client: AsyncClient,
     uow: UnitOfWork,
-):
+) -> None:
+    user = await login_as(client, uow)
+
     listing = await create_listing(uow)
 
     post_response = await client.post(

@@ -1,7 +1,7 @@
 from httpx import AsyncClient
 
 from app.db.uow import UnitOfWork
-from tests.helpers.users import create_user
+from tests.helpers.users import login_as
 
 # ─────────────────────────────────────────
 # POST /api/v1/auth/logout
@@ -16,22 +16,14 @@ async def test_logout_success(
     client: AsyncClient,
     uow: UnitOfWork,
 ) -> None:
-    await create_user(
+    # Login
+    await login_as(
+        client,
         uow,
         email="test@example.com",
         password="testpass",
     )
 
-    # Login
-    response = await client.post(
-        "/api/v1/auth/login",
-        json={
-            "email": "test@example.com",
-            "password": "testpass",
-        },
-    )
-
-    assert response.status_code == 200
     assert client.cookies.get("access_token")
     assert client.cookies.get("refresh_token")
 
@@ -57,22 +49,13 @@ async def test_logout_revokes_refresh_token(
     client: AsyncClient,
     uow: UnitOfWork,
 ) -> None:
-    await create_user(
+    # Login
+    await login_as(
+        client,
         uow,
         email="test@example.com",
         password="testpass",
     )
-
-    # Login
-    response = await client.post(
-        "/api/v1/auth/login",
-        json={
-            "email": "test@example.com",
-            "password": "testpass",
-        },
-    )
-
-    assert response.status_code == 200
 
     refresh_token = client.cookies.get("refresh_token")
     assert refresh_token

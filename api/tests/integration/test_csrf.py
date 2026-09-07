@@ -1,59 +1,57 @@
-import uuid
-
 from httpx import AsyncClient
 
 from app.db.uow import UnitOfWork
-from tests.helpers.listings import create_listing
 from tests.helpers.users import login_as
 
 # ─────────────────────────────────────────
-# DELETE /api/v1/listings
+# GET /api/v1/csrf
 # ─────────────────────────────────────────
 
 # ─────────────────────────────────────────
-# 204 No Content
+# 200 OK
 # ─────────────────────────────────────────
 
 
-async def test_listing_delete_success(
+async def test_csrf_safe_request_does_not_require_token(
+    client: AsyncClient,
+) -> None:
+    response = await client.get("/api/v1/listings")
+
+    assert response.status_code == 200
+
+
+async def test_csrf_unsafe_request_accepts_valid_token(
     client: AsyncClient,
     uow: UnitOfWork,
 ) -> None:
-    user = await login_as(client, uow)
+    await login_as(client, uow)
 
-    listing = await create_listing(uow)
-
-    delete_response = await client.delete(
-        f"/api/v1/listings/{listing.id}",
+    response = await client.post(
+        "/api/v1/auth/logout",
     )
 
-    assert delete_response.status_code == 204
-
-    get_response = await client.get(
-        f"/api/v1/listings/{listing.id}",
-    )
-
-    assert get_response.status_code == 404
+    assert response.status_code == 204
 
 
 # ─────────────────────────────────────────
-# 404 Not Found
+# 422 Unprocessable Content (CSRFProtect)
 # ─────────────────────────────────────────
 
 
-async def test_listing_delete_not_found(
+async def test_csrf_unsafe_request_requires_token(
     client: AsyncClient,
     uow: UnitOfWork,
 ) -> None:
-    user = await login_as(client, uow)
+    await login_as(client, uow)
 
-    listing_id = uuid.UUID("00000000-0000-0000-0000-000000000000")
+    client.headers.pop("X-CSRF-Token")
 
-    response = await client.delete(f"/api/v1/listings/{listing_id}")
+    response = await client.post(
+        "/api/v1/auth/logout",
+    )
 
-    assert response.status_code == 404
+    assert response.status_code == 422
 
     data = response.json()
 
-    assert data["code"] == "not_found"
-    assert str(listing_id) in data["detail"]
+    assert "X-CSRF-Token" in data["detail"]
