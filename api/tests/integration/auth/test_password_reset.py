@@ -5,7 +5,7 @@ from httpx import AsyncClient
 from app.core.security import hash_token, verify_password
 from app.db.uow import UnitOfWork
 from tests.fakes.email import FakeEmailSender
-from tests.helpers.users import create_user
+from tests.helpers.users import create_user, set_csrf_header
 
 # ─────────────────────────────────────────
 # POST /api/v1/auth/password-reset/request
@@ -18,6 +18,8 @@ async def test_password_reset_request_sends_email(
     fake_email_sender: FakeEmailSender,
 ) -> None:
     user = await create_user(uow)
+
+    await set_csrf_header(client)
 
     response = await client.post(
         "/api/v1/auth/password-reset/request",
@@ -44,6 +46,8 @@ async def test_password_reset_request_success(
 ) -> None:
     user = await create_user(uow)
 
+    await set_csrf_header(client)
+
     response = await client.post(
         "/api/v1/auth/password-reset/request",
         json={"email": user.email},
@@ -68,6 +72,8 @@ async def test_password_reset_request_success(
 async def test_password_reset_request_unknown_email(
     client: AsyncClient,
 ) -> None:
+    await set_csrf_header(client)
+
     response = await client.post(
         "/api/v1/auth/password-reset/request",
         json={"email": "unknown@example.com"},
@@ -103,6 +109,8 @@ async def test_password_reset_confirm_success(
         email="test@example.com",
         password="old-password",
     )
+
+    await set_csrf_header(client)
 
     raw_token = "test-reset-token"
 
@@ -143,6 +151,8 @@ async def test_password_reset_confirm_success(
 async def test_password_reset_confirm_invalid_token(
     client: AsyncClient,
 ) -> None:
+    await set_csrf_header(client)
+
     response = await client.post(
         "/api/v1/auth/password-reset/confirm",
         json={
@@ -166,6 +176,8 @@ async def test_password_reset_confirm_expired_token(
         password="old-password",
         display_name="Test User",
     )
+
+    await set_csrf_header(client)
 
     raw_token = "expired-reset-token"
 

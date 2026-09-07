@@ -5,6 +5,7 @@ from httpx import AsyncClient
 
 from app.db.uow import UnitOfWork
 from tests.helpers.listings import create_listing
+from tests.helpers.users import login_as
 
 # ─────────────────────────────────────────
 # PATCH /api/v1/listings/{listing_id}
@@ -16,6 +17,8 @@ from tests.helpers.listings import create_listing
 
 
 async def test_listing_update_success(client: AsyncClient, uow: UnitOfWork) -> None:
+    user = await login_as(client, uow)
+
     listing = await create_listing(uow)
 
     patch_response = await client.patch(
@@ -39,6 +42,8 @@ async def test_listing_update_success(client: AsyncClient, uow: UnitOfWork) -> N
 async def test_listing_update_changes_only_provided_fields(
     client: AsyncClient, uow: UnitOfWork
 ) -> None:
+    user = await login_as(client, uow)
+
     listing = await create_listing(
         uow,
         name="Original name",
@@ -67,7 +72,9 @@ async def test_listing_update_changes_only_provided_fields(
 # ─────────────────────────────────────────
 
 
-async def test_listing_update_not_found(client: AsyncClient) -> None:
+async def test_listing_update_not_found(client: AsyncClient, uow: UnitOfWork) -> None:
+    user = await login_as(client, uow)
+
     listing_id = uuid.UUID("00000000-0000-0000-0000-000000000000")
 
     response = await client.patch(
@@ -108,6 +115,8 @@ async def test_listing_update_rejects_invalid_values(
     field: str,
     value: str | int,
 ) -> None:
+    user = await login_as(client, uow)
+
     listing = await create_listing(uow)
 
     response = await client.patch(
@@ -126,6 +135,8 @@ async def test_listing_update_rejects_invalid_values(
 async def test_listing_update_rejects_empty_update(
     client: AsyncClient, uow: UnitOfWork
 ) -> None:
+    user = await login_as(client, uow)
+
     listing = await create_listing(uow)
 
     response = await client.patch(

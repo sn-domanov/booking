@@ -5,6 +5,7 @@ from httpx import AsyncClient
 
 from app.db.uow import UnitOfWork
 from tests.helpers.listings import create_listing
+from tests.helpers.users import login_as
 
 # ─────────────────────────────────────────
 # POST /api/v1/listings
@@ -15,7 +16,9 @@ from tests.helpers.listings import create_listing
 # ─────────────────────────────────────────
 
 
-async def test_listing_create_success(client: AsyncClient) -> None:
+async def test_listing_create_success(client: AsyncClient, uow: UnitOfWork) -> None:
+    user = await login_as(client, uow)
+
     payload = {
         "name": "Test Listing",
         "description": "A test listing",
@@ -52,10 +55,13 @@ async def test_listing_create_success(client: AsyncClient) -> None:
 )
 async def test_listing_create_normalization(
     client: AsyncClient,
+    uow: UnitOfWork,
     field: str,
     value: str,
     expected: str,
 ) -> None:
+    user = await login_as(client, uow)
+
     payload = {
         "name": value if field == "name" else "Test Listing",
         "description": value if field == "description" else "A test listing",
@@ -79,6 +85,8 @@ async def test_create_generates_slug(
     client: AsyncClient,
     uow: UnitOfWork,
 ) -> None:
+    user = await login_as(client, uow)
+
     await create_listing(uow, name="Quiet City Retreat")
 
     payload = {
@@ -111,8 +119,11 @@ async def test_create_generates_slug(
 )
 async def test_listing_create_rejects_missing_required_field(
     client: AsyncClient,
+    uow: UnitOfWork,
     field: str,
 ) -> None:
+    user = await login_as(client, uow)
+
     payload = {
         "name": "Test Listing",
         "description": "A test listing",
@@ -145,9 +156,12 @@ async def test_listing_create_rejects_missing_required_field(
 )
 async def test_listing_create_rejects_invalid_values(
     client: AsyncClient,
+    uow: UnitOfWork,
     field: str,
     value: str | int,
 ) -> None:
+    user = await login_as(client, uow)
+
     payload = {
         "name": "Test Listing",
         "description": "A test listing",

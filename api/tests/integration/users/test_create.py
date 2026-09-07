@@ -3,6 +3,8 @@ import uuid
 import pytest
 from httpx import AsyncClient
 
+from tests.helpers.users import set_csrf_header
+
 # ─────────────────────────────────────────
 # POST /api/v1/users
 # ─────────────────────────────────────────
@@ -13,6 +15,8 @@ from httpx import AsyncClient
 
 
 async def test_user_create_success(client: AsyncClient) -> None:
+    await set_csrf_header(client)
+
     payload = {
         "email": "test@example.com",
         "display_name": "Test User",
@@ -61,6 +65,8 @@ async def test_user_create_normalizes_values(
     value: str,
     expected: str,
 ) -> None:
+    await set_csrf_header(client)
+
     payload = {
         "email": "test@example.com",
         "display_name": "Test User",
@@ -85,6 +91,8 @@ async def test_user_create_rejects_missing_required_field(
     client: AsyncClient,
     field: str,
 ) -> None:
+    await set_csrf_header(client)
+
     payload = {
         "email": "test@example.com",
         "display_name": "Test User",
@@ -122,6 +130,8 @@ async def test_user_create_value_boundaries(
     value: str,
     status_code: int,
 ) -> None:
+    await set_csrf_header(client)
+
     payload = {
         "email": "test@example.com",
         "display_name": "Test User",
@@ -148,6 +158,8 @@ async def test_user_create_rejects_invalid_values(
     field: str,
     value: str,
 ) -> None:
+    await set_csrf_header(client)
+
     payload = {
         "email": "test@example.com",
         "display_name": "Test User",

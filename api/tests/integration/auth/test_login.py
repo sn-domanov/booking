@@ -2,7 +2,7 @@ from httpx import AsyncClient
 
 from app.db.uow import UnitOfWork
 from app.domains.users.api.schemas import UserResponse
-from tests.helpers.users import create_user
+from tests.helpers.users import create_user, set_csrf_header
 
 # ─────────────────────────────────────────
 # POST /api/v1/auth/login
@@ -17,8 +17,13 @@ async def test_login_success(
     client: AsyncClient,
     uow: UnitOfWork,
 ) -> None:
+    # Create user record in DB
     user = await create_user(uow, email="test@example.com", password="testpass")
 
+    # Handle CSRF protection
+    await set_csrf_header(client)
+
+    # Login
     response = await client.post(
         "/api/v1/auth/login",
         json={
@@ -58,8 +63,13 @@ async def test_login_invalid_password(
     client: AsyncClient,
     uow: UnitOfWork,
 ) -> None:
+    # Create user
     await create_user(uow, email="test@example.com", password="testpass")
 
+    # Handle CSRF protection
+    await set_csrf_header(client)
+
+    # Login
     response = await client.post(
         "/api/v1/auth/login",
         json={
@@ -77,6 +87,10 @@ async def test_login_invalid_password(
 async def test_login_unknown_user(
     client: AsyncClient,
 ) -> None:
+    # Handle CSRF protection
+    await set_csrf_header(client)
+
+    # Login
     response = await client.post(
         "/api/v1/auth/login",
         json={

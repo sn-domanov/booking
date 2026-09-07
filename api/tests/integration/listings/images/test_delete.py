@@ -5,6 +5,7 @@ from httpx import AsyncClient
 from app.db.uow import UnitOfWork
 from tests.helpers.images import image_upload
 from tests.helpers.listings import create_listing
+from tests.helpers.users import login_as
 
 # ─────────────────────────────────────────
 # DELETE /api/v1/listings/{listing_id}
@@ -20,6 +21,8 @@ async def test_listing_images_delete_success(
     uow: UnitOfWork,
     moto_s3,
 ) -> None:
+    user = await login_as(client, uow)
+
     listing = await create_listing(uow)
 
     post_response = await client.post(
@@ -60,6 +63,8 @@ async def test_listing_images_delete_not_found(
     client: AsyncClient,
     uow: UnitOfWork,
 ) -> None:
+    user = await login_as(client, uow)
+
     listing = await create_listing(uow)
 
     image_id = uuid.UUID("00000000-0000-0000-0000-000000000000")
