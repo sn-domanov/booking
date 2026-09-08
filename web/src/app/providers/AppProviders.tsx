@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
+import AuthProvider from "./auth/AuthProvider";
 import queryClient from "./query/queryClient";
 import ThemeProvider from "./ThemeProvider";
 
@@ -19,7 +20,7 @@ function AppProviders({ children }: AppProvidersProps) {
       disableTransitionOnChange
     >
       <QueryClientProvider client={queryClient}>
-        {children}
+        <AuthProvider>{children}</AuthProvider>
 
         {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
       </QueryClientProvider>
