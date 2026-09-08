@@ -2,7 +2,7 @@ from pydantic import BaseModel, EmailStr
 
 from app.api.schemas import ApiSchema
 from app.core.types import NormalizedEmail, PasswordInput
-from app.domains.users.api.schemas import UserResponse
+from app.domains.users.api.schemas import CurrentUserResponse
 
 # ─────────────────────────────────────────
 # Authentication
@@ -15,7 +15,7 @@ class LoginRequest(ApiSchema):
 
 
 class AuthResponse(ApiSchema):
-    user: UserResponse
+    user: CurrentUserResponse
 
 
 # OAuth 2.0 token response uses snake_case field names
