@@ -5,7 +5,11 @@ import type { CurrentUser, User } from "../model/user";
 import { currentUserDtoSchema, userDtoSchema } from "./dto";
 import { mapCurrentUser, mapUser } from "./mapper";
 
-export async function getUser(userId: string): Promise<User> {
+export type GetUserParams = {
+  userId: string;
+};
+
+export async function getUser({ userId }: GetUserParams): Promise<User> {
   const data = await request({
     method: "GET",
     url: `/users/${userId}`,
