@@ -6,7 +6,7 @@ export type AppError =
       type: "api";
       status: number;
       code: string;
-      detail: string;
+      message: string;
       conflict?: string;
     }
   | {
@@ -28,6 +28,8 @@ const apiErrorSchema = z.object({
   detail: z.string(),
   conflict: z.string().optional(),
 });
+
+export type ApiError = z.infer<typeof apiErrorSchema>;
 
 const fastApiErrorSchema = z.object({
   detail: z.union([z.string(), z.array(z.unknown())]),
@@ -51,7 +53,9 @@ export function normalizeError(error: unknown): AppError {
       return {
         type: "api",
         status,
-        ...result.data,
+        code: result.data.code,
+        message: result.data.detail,
+        conflict: result.data.conflict,
       };
     }
 

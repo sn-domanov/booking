@@ -76,5 +76,7 @@ def csrf_protect_exception_handler(
         status_code=exc.status_code,
         content={
             "detail": exc.message,
+            # Custom code used by this project to handle csrf error on client side
+            "code": "csrf_error",
         },
     )

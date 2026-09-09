@@ -12,7 +12,13 @@ export function userQueryOptions(params: GetUserParams) {
 export function currentUserQueryOptions() {
   return queryOptions({
     queryKey: ["users", "me"],
-    queryFn: getCurrentUser,
+    queryFn: async () => {
+      // TODO: consider initializing CSRF explicitly
+      // instead of relying on Axios interceptor
+      // This would couple CSRF to authentication
+      // await ensureCsrfToken();
+      return getCurrentUser();
+    },
     staleTime: Infinity,
   });
 }

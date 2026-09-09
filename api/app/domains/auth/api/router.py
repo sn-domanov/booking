@@ -19,7 +19,7 @@ from app.domains.auth.api.schemas import (
     PasswordResetRequest,
 )
 from app.domains.auth.notifications.password_reset import send_password_reset_email
-from app.domains.users.api.schemas import UserResponse
+from app.domains.users.api.schemas import CurrentUserResponse
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -44,7 +44,7 @@ async def login(
     )
 
     return AuthResponse(
-        user=UserResponse.model_validate(result.user),
+        user=CurrentUserResponse.model_validate(result.user),
     )
 
 
