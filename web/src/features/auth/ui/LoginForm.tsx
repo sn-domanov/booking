@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Controller, useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 
 import { currentUserQueryOptions } from "@/entities/user/api/queries";
 import { login } from "@/features/auth/api";
@@ -21,8 +22,11 @@ import {
   FieldLabel,
 } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
+import { toast } from "@/shared/components/ui/toast";
 
 export function LoginForm() {
+  const navigate = useNavigate();
+
   const form = useForm<LoginParams>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -44,6 +48,14 @@ export function LoginForm() {
     try {
       // Form owns error state, not mutation
       await loginMutation.mutateAsync(values);
+
+      toast.add({
+        title: "Welcome back!",
+        description: "You're now signed in.",
+        type: "success",
+      });
+
+      navigate("/");
     } catch {
       form.setError("root", {
         message: "Invalid email or password.",
