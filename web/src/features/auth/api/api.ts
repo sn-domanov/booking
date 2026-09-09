@@ -1,10 +1,23 @@
-import { mapCurrentUser } from "@/entities/user/api/mapper";
-import type { CurrentUser } from "@/entities/user/model/user";
+import { userDtoSchema } from "@/entities/user/api/dto";
+import { mapCurrentUser, mapUser } from "@/entities/user/api/mapper";
+import type { CurrentUser, User } from "@/entities/user/model/user";
 import { parseResponse } from "@/shared/api/parse";
 import { request } from "@/shared/api/request";
 
-import type { LoginParams } from "../schemas";
+import type { LoginParams, SignupParams } from "../schemas";
 import { authResponseDtoSchema } from "./dto";
+
+export async function signup(params: SignupParams): Promise<User> {
+  const data = await request({
+    method: "POST",
+    url: "/users",
+    data: params,
+  });
+
+  const dto = parseResponse(userDtoSchema, data);
+
+  return mapUser(dto);
+}
 
 export async function login(params: LoginParams): Promise<CurrentUser> {
   const data = await request({

@@ -6,7 +6,7 @@ export type AppError =
       type: "api";
       status: number;
       code: string;
-      detail: string;
+      message: string;
       conflict?: string;
     }
   | {
@@ -53,7 +53,9 @@ export function normalizeError(error: unknown): AppError {
       return {
         type: "api",
         status,
-        ...result.data,
+        code: result.data.code,
+        message: result.data.detail,
+        conflict: result.data.conflict,
       };
     }
 

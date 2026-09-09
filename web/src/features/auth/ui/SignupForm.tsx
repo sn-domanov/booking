@@ -1,10 +1,9 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Controller, useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 
-import { currentUserQueryOptions } from "@/entities/user/api/queries";
-import { login } from "@/features/auth/api";
-import { type LoginParams, loginSchema } from "@/features/auth/schemas";
+import { signup } from "@/features/auth/api";
+import type { AppError } from "@/shared/api/errors";
 import { Alert, AlertDescription } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -21,32 +20,42 @@ import {
   FieldLabel,
 } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
+import { toast } from "@/shared/components/ui/toast";
 
-export function LoginForm() {
-  const form = useForm<LoginParams>({
-    resolver: zodResolver(loginSchema),
+import { signupFormSchema, type SignupFormValues } from "../schemas";
+
+function SignupForm() {
+  const navigate = useNavigate();
+
+  const form = useForm<SignupFormValues>({
+    resolver: zodResolver(signupFormSchema),
     defaultValues: {
       email: "",
       password: "",
+      passwordConfirmation: "",
+      displayName: "",
     },
   });
 
-  const queryClient = useQueryClient();
-
-  const loginMutation = useMutation({
-    mutationFn: login,
-    onSuccess: (user) => {
-      queryClient.setQueryData(currentUserQueryOptions().queryKey, user);
-    },
-  });
-
-  async function onSubmit(values: LoginParams) {
+  async function onSubmit({
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    passwordConfirmation: _passwordConfirmation,
+    ...values
+  }: SignupFormValues) {
     try {
-      // Form owns error state, not mutation
-      await loginMutation.mutateAsync(values);
-    } catch {
+      await signup(values);
+
+      toast.add({
+        title: "Account created",
+        description: "You can now sign in.",
+        type: "success",
+      });
+
+      navigate("/login");
+    } catch (error) {
+      console.log(error);
       form.setError("root", {
-        message: "Invalid email or password.",
+        message: (error as AppError).message,
       });
     }
   }
@@ -54,8 +63,8 @@ export function LoginForm() {
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
-        <CardTitle>Welcome back</CardTitle>
-        <CardDescription>Sign in to your account to continue.</CardDescription>
+        <CardTitle>Create an account</CardTitle>
+        <CardDescription>Sign up to create your account.</CardDescription>
       </CardHeader>
 
       <CardContent>
@@ -93,6 +102,29 @@ export function LoginForm() {
             />
 
             <Controller
+              name="displayName"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor={field.name}>Display name</FieldLabel>
+
+                  <Input
+                    {...field}
+                    id={field.name}
+                    type="text"
+                    autoComplete="name"
+                    aria-invalid={fieldState.invalid}
+                    placeholder="Your name"
+                  />
+
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+
+            <Controller
               name="password"
               control={form.control}
               render={({ field, fieldState }) => (
@@ -103,7 +135,29 @@ export function LoginForm() {
                     {...field}
                     id={field.name}
                     type="password"
-                    autoComplete="current-password"
+                    autoComplete="new-password"
+                    aria-invalid={fieldState.invalid}
+                  />
+
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+
+            <Controller
+              name="passwordConfirmation"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor={field.name}>Confirm password</FieldLabel>
+
+                  <Input
+                    {...field}
+                    id={field.name}
+                    type="password"
+                    autoComplete="new-password"
                     aria-invalid={fieldState.invalid}
                   />
 
@@ -119,7 +173,7 @@ export function LoginForm() {
               className="w-full"
               disabled={form.formState.isSubmitting}
             >
-              {form.formState.isSubmitting ? "Signing in…" : "Sign in"}
+              {form.formState.isSubmitting ? "Signing up…" : "Sign up"}
             </Button>
           </FieldGroup>
         </form>
@@ -127,3 +181,5 @@ export function LoginForm() {
     </Card>
   );
 }
+
+export default SignupForm;
