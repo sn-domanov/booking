@@ -38,8 +38,11 @@ apiClient.interceptors.request.use((config) => {
 });
 
 type RequestConfig = InternalAxiosRequestConfig & {
+  _retry?: boolean;
   _csrfRetry?: boolean;
 };
+
+let refreshPromise: Promise<void> | null = null;
 
 apiClient.interceptors.response.use(
   (response) => response,
@@ -59,6 +62,26 @@ apiClient.interceptors.response.use(
 
       resetCsrfToken();
       await ensureCsrfToken();
+
+      return apiClient(request);
+    }
+
+    // Authentication expired
+    if (error.response?.status === 401) {
+      if (request._retry || request.url?.endsWith("/auth/refresh")) {
+        throw error;
+      }
+
+      request._retry = true;
+
+      refreshPromise ??= apiClient
+        .post("/auth/refresh")
+        .then(() => undefined)
+        .finally(() => {
+          refreshPromise = null;
+        });
+
+      await refreshPromise;
 
       return apiClient(request);
     }
