@@ -2,7 +2,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
-import { signup } from "@/features/auth/api";
 import type { AppError } from "@/shared/api/errors";
 import { Alert, AlertDescription } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
@@ -22,32 +21,37 @@ import {
 import { Input } from "@/shared/components/ui/input";
 import { toast } from "@/shared/components/ui/toast";
 
-import { signupFormSchema, type SignupFormValues } from "../schemas";
+import { confirmPasswordReset } from "../api/api";
+import {
+  passwordResetConfirmFormSchema,
+  type PasswordResetConfirmFormValues,
+} from "../schemas";
 
-function SignupForm() {
+type PasswordResetConfirmFormProps = {
+  token: string;
+};
+
+function PasswordResetConfirmForm({ token }: PasswordResetConfirmFormProps) {
   const navigate = useNavigate();
 
-  const form = useForm<SignupFormValues>({
-    resolver: zodResolver(signupFormSchema),
+  const form = useForm<PasswordResetConfirmFormValues>({
+    resolver: zodResolver(passwordResetConfirmFormSchema),
     defaultValues: {
-      email: "",
-      password: "",
-      passwordConfirmation: "",
-      displayName: "",
+      newPassword: "",
+      newPasswordConfirmation: "",
     },
   });
 
-  async function onSubmit({
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    passwordConfirmation: _passwordConfirmation,
-    ...values
-  }: SignupFormValues) {
+  async function onSubmit(values: PasswordResetConfirmFormValues) {
     try {
-      await signup(values);
+      await confirmPasswordReset({
+        token,
+        ...values,
+      });
 
       toast.add({
-        title: "Account created",
-        description: "You can now sign in.",
+        title: "Password updated",
+        description: "You can now sign in with your new password.",
         type: "success",
       });
 
@@ -62,8 +66,10 @@ function SignupForm() {
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
-        <CardTitle>Create an account</CardTitle>
-        <CardDescription>Sign up to create your account.</CardDescription>
+        <CardTitle>Reset your password</CardTitle>
+        <CardDescription>
+          Enter a new password for your account.
+        </CardDescription>
       </CardHeader>
 
       <CardContent>
@@ -78,57 +84,11 @@ function SignupForm() {
             )}
 
             <Controller
-              name="email"
+              name="newPassword"
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name}>Email</FieldLabel>
-
-                  <Input
-                    {...field}
-                    id={field.name}
-                    type="email"
-                    autoComplete="email"
-                    aria-invalid={fieldState.invalid}
-                    placeholder="you@example.com"
-                  />
-
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-
-            <Controller
-              name="displayName"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name}>Display name</FieldLabel>
-
-                  <Input
-                    {...field}
-                    id={field.name}
-                    type="text"
-                    autoComplete="name"
-                    aria-invalid={fieldState.invalid}
-                    placeholder="Your name"
-                  />
-
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-
-            <Controller
-              name="password"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name}>Password</FieldLabel>
+                  <FieldLabel htmlFor={field.name}>New password</FieldLabel>
 
                   <Input
                     {...field}
@@ -146,11 +106,13 @@ function SignupForm() {
             />
 
             <Controller
-              name="passwordConfirmation"
+              name="newPasswordConfirmation"
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name}>Confirm password</FieldLabel>
+                  <FieldLabel htmlFor={field.name}>
+                    Confirm new password
+                  </FieldLabel>
 
                   <Input
                     {...field}
@@ -172,7 +134,9 @@ function SignupForm() {
               className="w-full"
               disabled={form.formState.isSubmitting}
             >
-              {form.formState.isSubmitting ? "Signing up…" : "Sign up"}
+              {form.formState.isSubmitting
+                ? "Updating password…"
+                : "Update password"}
             </Button>
           </FieldGroup>
         </form>
@@ -181,4 +145,4 @@ function SignupForm() {
   );
 }
 
-export default SignupForm;
+export default PasswordResetConfirmForm;
