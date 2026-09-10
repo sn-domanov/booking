@@ -6,7 +6,8 @@ import { request } from "@/shared/api/request";
 
 import type {
   LoginParams,
-  PasswordResetParams,
+  PasswordResetConfirmParams,
+  PasswordResetRequestParams,
   SignupParams,
 } from "../schemas";
 import { authResponseDtoSchema } from "./dto";
@@ -43,11 +44,21 @@ export async function logout(): Promise<void> {
 }
 
 export async function requestPasswordReset(
-  params: PasswordResetParams,
+  params: PasswordResetRequestParams,
 ): Promise<void> {
   await request({
     method: "POST",
     url: "/auth/password-reset/request",
+    data: params,
+  });
+}
+
+export async function confirmPasswordReset(
+  params: PasswordResetConfirmParams,
+): Promise<void> {
+  await request({
+    method: "POST",
+    url: "/auth/password-reset/confirm",
     data: params,
   });
 }

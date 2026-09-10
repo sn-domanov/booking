@@ -1,6 +1,7 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import LoginPage from "@/features/auth/ui/LoginPage";
+import PasswordResetConfirmPage from "@/features/auth/ui/PasswordResetConfirmPage";
 import PasswordResetRequestPage from "@/features/auth/ui/PasswordResetRequestPage";
 import SignupPage from "@/features/auth/ui/SignupPage";
 import AppLayout from "@/layouts/AppLayout";
@@ -31,8 +32,17 @@ const router = createBrowserRouter([
         element: <LoginPage />,
       },
       {
-        path: "/password-reset/request",
-        element: <PasswordResetRequestPage />,
+        path: "password-reset",
+        children: [
+          {
+            path: "request",
+            element: <PasswordResetRequestPage />,
+          },
+          {
+            path: "confirm",
+            element: <PasswordResetConfirmPage />,
+          },
+        ],
       },
     ],
   },

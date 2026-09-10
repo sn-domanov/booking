@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 
 import type { AppError } from "@/shared/api/errors";
 import { Alert, AlertDescription } from "@/shared/components/ui/alert";
@@ -20,30 +21,41 @@ import {
 import { Input } from "@/shared/components/ui/input";
 import { toast } from "@/shared/components/ui/toast";
 
-import { requestPasswordReset } from "../api/api";
+import { confirmPasswordReset } from "../api/api";
 import {
-  type PasswordResetRequestParams,
-  passwordResetRequestSchema,
+  passwordResetConfirmFormSchema,
+  type PasswordResetConfirmFormValues,
 } from "../schemas";
 
-function PasswordResetRequestForm() {
-  const form = useForm<PasswordResetRequestParams>({
-    resolver: zodResolver(passwordResetRequestSchema),
+type PasswordResetConfirmFormProps = {
+  token: string;
+};
+
+function PasswordResetConfirmForm({ token }: PasswordResetConfirmFormProps) {
+  const navigate = useNavigate();
+
+  const form = useForm<PasswordResetConfirmFormValues>({
+    resolver: zodResolver(passwordResetConfirmFormSchema),
     defaultValues: {
-      email: "",
+      newPassword: "",
+      newPasswordConfirmation: "",
     },
   });
 
-  async function onSubmit(values: PasswordResetRequestParams) {
+  async function onSubmit(values: PasswordResetConfirmFormValues) {
     try {
-      await requestPasswordReset(values);
+      await confirmPasswordReset({
+        token,
+        ...values,
+      });
 
       toast.add({
-        title: "Check your email",
-        description:
-          "If an account exists with this email, you'll receive instructions to reset your password.",
+        title: "Password updated",
+        description: "You can now sign in with your new password.",
         type: "success",
       });
+
+      navigate("/login");
     } catch (error) {
       form.setError("root", {
         message: (error as AppError).message,
@@ -54,10 +66,9 @@ function PasswordResetRequestForm() {
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
-        <CardTitle>Forgot your password?</CardTitle>
+        <CardTitle>Reset your password</CardTitle>
         <CardDescription>
-          Enter your email address and we'll send you instructions to reset your
-          password.
+          Enter a new password for your account.
         </CardDescription>
       </CardHeader>
 
@@ -73,19 +84,42 @@ function PasswordResetRequestForm() {
             )}
 
             <Controller
-              name="email"
+              name="newPassword"
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name}>Email</FieldLabel>
+                  <FieldLabel htmlFor={field.name}>New password</FieldLabel>
 
                   <Input
                     {...field}
                     id={field.name}
-                    type="email"
-                    autoComplete="email"
+                    type="password"
+                    autoComplete="new-password"
                     aria-invalid={fieldState.invalid}
-                    placeholder="you@example.com"
+                  />
+
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+
+            <Controller
+              name="newPasswordConfirmation"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor={field.name}>
+                    Confirm new password
+                  </FieldLabel>
+
+                  <Input
+                    {...field}
+                    id={field.name}
+                    type="password"
+                    autoComplete="new-password"
+                    aria-invalid={fieldState.invalid}
                   />
 
                   {fieldState.invalid && (
@@ -100,7 +134,9 @@ function PasswordResetRequestForm() {
               className="w-full"
               disabled={form.formState.isSubmitting}
             >
-              {form.formState.isSubmitting ? "Sending…" : "Send reset link"}
+              {form.formState.isSubmitting
+                ? "Updating password…"
+                : "Update password"}
             </Button>
           </FieldGroup>
         </form>
@@ -109,4 +145,4 @@ function PasswordResetRequestForm() {
   );
 }
 
-export default PasswordResetRequestForm;
+export default PasswordResetConfirmForm;

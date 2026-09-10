@@ -10,7 +10,7 @@ async def send_password_reset_email(
     token: str,
     frontend_base_url: str,
 ) -> None:
-    reset_url = f"{frontend_base_url.rstrip('/')}/reset-password?token={token}"
+    reset_url = f"{frontend_base_url.rstrip('/')}/password-reset/confirm?token={token}"
 
     template = email_templates.get_template("auth/password_reset.html")
 
