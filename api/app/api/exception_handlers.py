@@ -73,7 +73,8 @@ def csrf_protect_exception_handler(
         raise TypeError("application_exception_handler received non-ApplicationError")
 
     return JSONResponse(
-        status_code=exc.status_code,
+        # Normalize possible exc.status_code HTTP 400, 401, 422 to HTTP 403
+        status_code=403,
         content={
             "detail": exc.message,
             # Custom code used by this project to handle csrf error on client side
