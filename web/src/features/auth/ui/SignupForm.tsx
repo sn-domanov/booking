@@ -53,7 +53,6 @@ function SignupForm() {
 
       navigate("/login");
     } catch (error) {
-      console.log(error);
       form.setError("root", {
         message: (error as AppError).message,
       });
