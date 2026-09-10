@@ -4,7 +4,11 @@ import type { CurrentUser, User } from "@/entities/user/model/user";
 import { parseResponse } from "@/shared/api/parse";
 import { request } from "@/shared/api/request";
 
-import type { LoginParams, SignupParams } from "../schemas";
+import type {
+  LoginParams,
+  PasswordResetParams,
+  SignupParams,
+} from "../schemas";
 import { authResponseDtoSchema } from "./dto";
 
 export async function signup(params: SignupParams): Promise<User> {
@@ -35,5 +39,15 @@ export async function logout(): Promise<void> {
   await request({
     method: "POST",
     url: "/auth/logout",
+  });
+}
+
+export async function requestPasswordReset(
+  params: PasswordResetParams,
+): Promise<void> {
+  await request({
+    method: "POST",
+    url: "/auth/password-reset/request",
+    data: params,
   });
 }

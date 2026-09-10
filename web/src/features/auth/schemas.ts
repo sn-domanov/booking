@@ -25,3 +25,9 @@ export const signupFormSchema = signupSchema
   });
 
 export type SignupFormValues = z.infer<typeof signupFormSchema>;
+
+export const passwordResetRequestSchema = z.object({
+  email: z.email(),
+});
+
+export type PasswordResetParams = z.infer<typeof passwordResetRequestSchema>;
