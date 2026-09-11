@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Controller, useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import { currentUserQueryOptions } from "@/entities/user/api/queries";
 import { login } from "@/features/auth/api";
@@ -125,15 +125,26 @@ export function LoginForm() {
                 </Field>
               )}
             />
+          </FieldGroup>
 
+          <div className="mt-6 space-y-3">
             <Button
               type="submit"
               className="w-full"
               disabled={form.formState.isSubmitting}
             >
-              {form.formState.isSubmitting ? "Signing in…" : "Sign in"}
+              {form.formState.isSubmitting ? "Logging in…" : "Log in"}
             </Button>
-          </FieldGroup>
+
+            <div className="text-center text-sm text-muted-foreground">
+              <Link
+                to="/password-reset/request"
+                className="hover:text-foreground hover:underline"
+              >
+                Forgot your password?
+              </Link>
+            </div>
+          </div>
         </form>
       </CardContent>
     </Card>
