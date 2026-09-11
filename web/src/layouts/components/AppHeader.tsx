@@ -4,6 +4,7 @@ import { useAuth } from "@/app/providers/auth/useAuth";
 import { toast } from "@/shared/components/ui/toast";
 
 import GuestNav from "./GuestNav";
+import ThemeToggle from "./ThemeToggle";
 import UserMenu from "./UserMenu";
 
 function AppHeader() {
@@ -28,6 +29,8 @@ function AppHeader() {
 
         {/* UserMenu is an account control, not navigation. Hence div - not nav. */}
         <div className="flex items-center gap-1">
+          <ThemeToggle />
+
           {user ? (
             <UserMenu user={user} onLogout={handleLogout} />
           ) : (
