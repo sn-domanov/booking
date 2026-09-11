@@ -1,8 +1,9 @@
 import { type ReactNode } from "react";
 
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { currentUserQueryOptions } from "@/entities/user/api/queries";
+import { logout } from "@/features/auth/api";
 
 import { AuthContext } from "./AuthContext";
 
@@ -11,13 +12,24 @@ type AuthProviderProps = {
 };
 
 export function AuthProvider({ children }: AuthProviderProps) {
+  const queryClient = useQueryClient();
+
   const { data: user, isPending } = useQuery(currentUserQueryOptions());
+
+  const logoutMutation = useMutation({
+    mutationFn: logout,
+    onSuccess: () => {
+      // N.B. update the query data explicitly so subscribed components re-render
+      queryClient.setQueryData(currentUserQueryOptions().queryKey, null);
+    },
+  });
 
   return (
     <AuthContext.Provider
       value={{
         user: user ?? null,
         isLoading: isPending,
+        logout: logoutMutation.mutateAsync,
       }}
     >
       {children}

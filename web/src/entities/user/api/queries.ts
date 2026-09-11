@@ -1,5 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
 
+import type { CurrentUser } from "../model";
 import { getCurrentUser, getUser, type GetUserParams } from "./api";
 
 export function userQueryOptions(params: GetUserParams) {
@@ -10,7 +11,7 @@ export function userQueryOptions(params: GetUserParams) {
 }
 
 export function currentUserQueryOptions() {
-  return queryOptions({
+  return queryOptions<CurrentUser | null>({
     queryKey: ["users", "me"],
     queryFn: async () => {
       // TODO: consider initializing CSRF explicitly
