@@ -24,9 +24,9 @@ function UserMenu({ user, onLogout }: UserMenuProps) {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end">
-        <DropdownMenuItem render={<Link to="/profile" />}>
+        <DropdownMenuItem render={<Link to="/account" />}>
           <User />
-          Profile
+          My account
         </DropdownMenuItem>
 
         <DropdownMenuSeparator />
