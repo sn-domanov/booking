@@ -8,6 +8,8 @@ import AppLayout from "@/layouts/AppLayout";
 import AuthLayout from "@/layouts/AuthLayout";
 import HomePage from "@/pages/HomePage";
 
+import { accountRoutes } from "./accountRoutes";
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -24,11 +26,11 @@ const router = createBrowserRouter([
     element: <AuthLayout />,
     children: [
       {
-        path: "/signup",
+        path: "signup",
         element: <SignupPage />,
       },
       {
-        path: "/login",
+        path: "login",
         element: <LoginPage />,
       },
       {
@@ -46,6 +48,7 @@ const router = createBrowserRouter([
       },
     ],
   },
+  accountRoutes,
 ]);
 
 function AppRouter() {
