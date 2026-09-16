@@ -28,37 +28,31 @@
       ],
       "settings": {
         "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
         "editor.codeActionsOnSave": {
           "source.fixAll.eslint": "explicit"
         },
-				"css.lint.unknownAtRules": "ignore",
+        "css.lint.unknownAtRules": "ignore",
         "[json]": {
-          "editor.tabSize": 2,
-          "editor.defaultFormatter": "esbenp.prettier-vscode"
+          "editor.tabSize": 2
         },
         "[html]": {
-          "editor.tabSize": 2,
-          "editor.defaultFormatter": "esbenp.prettier-vscode",
+          "editor.tabSize": 2
         },
         "[css]": {
-          "editor.tabSize": 2,
-          "editor.defaultFormatter": "esbenp.prettier-vscode"
+          "editor.tabSize": 2
         },
         "[javascript]": {
-          "editor.tabSize": 2,
-          "editor.defaultFormatter": "esbenp.prettier-vscode",
+          "editor.tabSize": 2
         },
         "[javascriptreact]": {
-          "editor.tabSize": 2,
-          "editor.defaultFormatter": "esbenp.prettier-vscode"
+          "editor.tabSize": 2
         },
         "[typescript]": {
-          "editor.tabSize": 2,
-          "editor.defaultFormatter": "esbenp.prettier-vscode"
+          "editor.tabSize": 2
         },
         "[typescriptreact]": {
-          "editor.tabSize": 2,
-          "editor.defaultFormatter": "esbenp.prettier-vscode"
+          "editor.tabSize": 2
         }
       }
     }

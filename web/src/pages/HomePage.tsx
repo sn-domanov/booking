@@ -5,7 +5,7 @@ function HomePage() {
   const { user } = useAuth();
 
   return (
-    <section className="page py-8 space-y-4">
+    <section className="page space-y-4 py-8">
       <h1>Welcome to Booking{user ? `, ${user.displayName}` : ""}!</h1>
 
       <ListingListContainer />

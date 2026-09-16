@@ -136,7 +136,7 @@ export function LoginForm() {
               {form.formState.isSubmitting ? "Logging in…" : "Log in"}
             </Button>
 
-            <div className="text-center text-sm text-muted-foreground">
+            <div className="text-muted-foreground text-center text-sm">
               <Link
                 to="/password-reset/request"
                 className="hover:text-foreground hover:underline"
