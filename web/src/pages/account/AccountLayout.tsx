@@ -15,7 +15,7 @@ export function AccountLayout() {
       <div className="flex flex-1">
         <AccountNavigation />
 
-        <main className="flex-1 p-6">
+        <main className="flex-1 px-6 py-2">
           <Outlet />
         </main>
       </div>

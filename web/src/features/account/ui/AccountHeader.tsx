@@ -21,11 +21,11 @@ function AccountHeader() {
 
           <div>
             {isLoading ? (
-              <div className="h-8 w-40 animate-pulse rounded bg-muted" />
+              <div className="bg-muted h-8 w-40 animate-pulse rounded" />
             ) : (
               <>
                 <div className="text-sm font-medium">{user?.displayName}</div>
-                <div className="text-sm text-muted-foreground">
+                <div className="text-muted-foreground text-sm">
                   {user?.email}
                 </div>
               </>
