@@ -4,7 +4,7 @@ import AppHeader from "./components/AppHeader";
 
 function AppLayout() {
   return (
-    <div className="min-h-svh flex flex-col">
+    <div className="flex min-h-svh flex-col">
       <AppHeader />
 
       <main className="flex-1">

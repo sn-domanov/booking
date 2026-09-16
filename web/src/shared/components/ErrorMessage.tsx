@@ -13,12 +13,12 @@ export function ErrorMessage({ error, onRetry }: ErrorMessageProps) {
 
   return (
     <div
-      className="flex min-h-64 flex-col items-center justify-center gap-4 rounded-lg border border-destructive/20 bg-destructive/5 p-8 text-center"
+      className="border-destructive/20 bg-destructive/5 flex min-h-64 flex-col items-center justify-center gap-4 rounded-lg border p-8 text-center"
       role="alert"
     >
       <div className="space-y-1">
-        <p className="font-medium text-destructive">{title}</p>
-        <p className="text-sm text-muted-foreground">{description}</p>
+        <p className="text-destructive font-medium">{title}</p>
+        <p className="text-muted-foreground text-sm">{description}</p>
       </div>
 
       <Button variant="outline" onClick={onRetry}>
